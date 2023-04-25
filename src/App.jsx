@@ -36,63 +36,64 @@ function App() {
     };
     return (
 
-        <div className="App">
-            <Box>
-                <Grid container rowSpacing={3}>
-                    <Grid item xs={9}>
-                        <h4 style={{color: "#3a3939"}}>
-                            W&nbsp;e&nbsp;l&nbsp;c&nbsp;o&nbsp;m&nbsp;e &emsp; t&nbsp;o &emsp; S&nbsp;m&nbsp;a&nbsp;r&nbsp;t&nbsp;!
-                        </h4>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <img src={Logo} alt="Logo" style={{marginRight: "20px"}}/>
-                    </Grid>
+
+        <Container maxWidth={"sm"}>
+            <Grid container rowSpacing={1}>
+                <Grid item xs={6}>
+                    <h4 style={{color: "#3a3939"}}>
+                        W&nbsp;e&nbsp;l&nbsp;c&nbsp;o&nbsp;m&nbsp;e &emsp; t&nbsp;o &emsp; S&nbsp;m&nbsp;a&nbsp;r&nbsp;t&nbsp;!
+                    </h4>
                 </Grid>
+                <Grid item xs={6} sx={{textAlign: "end"}}>
+                    <img src={Logo} alt="Logo"/>
+                </Grid>
+            </Grid>
 
 
-                <Grid container rowSpacing={3} style={{marginTop: "20%", marginBottom: "15%"}}>
-                    <Grid item xs={12}>
-                        <TextField
-                            required
-                            id="standard-required"
-                            label="Full name"
-                            variant="standard"
-                            style={{width: '100%'}}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            required
-                            id="standard-required"
-                            label="Phone Number"
-                            variant="standard"
-                            style={{width: '100%'}}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormControl sx={{width: '100%'}} variant="standard">
-                            <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
-                            <Input
-                                id="standard-adornment-password"
-                                type={showPassword ? 'text' : 'password'}
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            aria-label="toggle password visibility"
-                                            onClick={handleClickShowPassword}
-                                            onMouseDown={handleMouseDownPassword}
-                                        >
-                                            {showPassword ? <VisibilityOff/> : <Visibility/>}
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                            />
-                        </FormControl>
-                    </Grid>
+            <Grid container rowSpacing={3} sx={{marginTop: "5dvh", marginBottom: "10dvh"}}>
+                <Grid item xs={12}>
+                    <TextField
+                        required
+                        id="standard-required"
+                        label="Full name"
+                        variant="standard"
+                        style={{width: '100%'}}
+                    />
                 </Grid>
-                <ColorButton variant="contained" style={{width: "100%"}}>Sign in</ColorButton>
-            </Box>
-        </div>
+                <Grid item xs={12}>
+                    <TextField
+                        required
+                        id="standard-required"
+                        label="Phone Number"
+                        variant="standard"
+                        style={{width: '100%'}}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <FormControl sx={{width: '100%'}} variant="standard">
+                        <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
+                        <Input
+                            id="standard-adornment-password"
+                            type={showPassword ? 'text' : 'password'}
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={handleClickShowPassword}
+                                        onMouseDown={handleMouseDownPassword}
+                                    >
+                                        {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                    </IconButton>
+                                </InputAdornment>
+                            }
+                        />
+                    </FormControl>
+                </Grid>
+
+            </Grid>
+            <ColorButton variant="contained" style={{width: "100%"}}>Sign in</ColorButton>
+        </Container>
+
     );
 
 }
