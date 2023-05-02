@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {Box, FormControl, Grid, IconButton, Input, InputAdornment, InputLabel, TextField} from "@mui/material";
 import Logo from "../assets/circular_logo.svg";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import ColorButton from './ColorButton.jsx';
-import {handleSignIn, handleSignOut} from "../model_firebase/index.js";
+import {useDispatch, useSelector} from "react-redux";
+import {changePasswordVisibility} from "../store";
 
 
 /**
@@ -12,9 +13,16 @@ import {handleSignIn, handleSignOut} from "../model_firebase/index.js";
  * @constructor
  */
 const LoginPage = () => {
+    const dispatch = useDispatch();
+    const showPassword = useSelector(state => state.loginPage.showPassword);
 
-    const [showPassword, setShowPassword] = useState(false);
-    const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+    const handleClickShowPassword = () => {
+        //dispatch the action to the store
+        dispatch(changePasswordVisibility());
+    }
+
+
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
@@ -23,8 +31,6 @@ const LoginPage = () => {
     return (
         <Box>
             <Grid container rowSpacing={1}>
-
-
                 <Grid item xs={8}>
                     <h4 style={{color: "#3a3939"}}>
                         W&nbsp;e&nbsp;l&nbsp;c&nbsp;o&nbsp;m&nbsp;e&emsp;t&nbsp;o&emsp;<span
