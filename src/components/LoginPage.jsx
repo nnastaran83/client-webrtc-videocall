@@ -23,14 +23,26 @@ const LoginPage = () => {
     return (
         <Box>
             <Grid container rowSpacing={1}>
-                <Grid item xs={6}>
+
+
+                <Grid item xs={8}>
                     <h4 style={{color: "#3a3939"}}>
-                        W&nbsp;e&nbsp;l&nbsp;c&nbsp;o&nbsp;m&nbsp;e &emsp; t&nbsp;o &emsp; S&nbsp;m&nbsp;a&nbsp;r&nbsp;t&nbsp;!
+                        W&nbsp;e&nbsp;l&nbsp;c&nbsp;o&nbsp;m&nbsp;e&emsp;t&nbsp;o&emsp;<span
+                        style={{
+                            color: "#FF00B8",
+                            fontSize: "20px"
+                        }}>S</span>&nbsp;m&nbsp;a&nbsp;r&nbsp;t&nbsp;&nbsp;&nbsp;<span
+                        style={{
+                            color: "#11AA7C",
+                            fontSize: "20px"
+                        }}>C</span>&nbsp;a&nbsp;l&nbsp;l&nbsp;e&nbsp;e&nbsp;
                     </h4>
                 </Grid>
-                <Grid item xs={6} sx={{textAlign: "end"}}>
+
+                <Grid item xs={4} sx={{textAlign: "end"}}>
                     <img src={Logo} alt="Logo"/>
                 </Grid>
+
             </Grid>
 
             <Grid container rowSpacing={3} sx={{marginTop: "5dvh", marginBottom: "10dvh"}}>
