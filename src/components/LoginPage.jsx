@@ -1,11 +1,10 @@
-import React from "react";
-import {Box, FormControl, Grid, IconButton, Input, InputAdornment, InputLabel, TextField} from "@mui/material";
+import React, {useRef} from "react";
+import {Box, FormControl, FormGroup, Grid, Input, TextField} from "@mui/material";
 import Logo from "../assets/circular_logo.svg";
-import {Visibility, VisibilityOff} from "@mui/icons-material";
-import ColorButton from './ColorButton.jsx';
+import ColorButton from './themed_components/ColorButton.jsx';
 import {useDispatch, useSelector} from "react-redux";
-import {changePasswordVisibility} from "../store";
-
+import {changePasswordVisibility, setEmail, setPassword, setUserName, signInUser, store} from "../store";
+import PasswordInput from "./PasswordInput.jsx";
 
 /**
  * Login Page
@@ -15,23 +14,42 @@ import {changePasswordVisibility} from "../store";
 const LoginPage = () => {
     const dispatch = useDispatch();
     const showPassword = useSelector(state => state.loginPage.showPassword);
+    const isLoading = useSelector(state => state.loginPage.isLoading);
 
+    const {email, password} = useSelector(state => state.loginPage);
+
+    const handleUserNameInputChange = (event) => {
+        event.preventDefault();
+        dispatch(setUserName(event.target.value));
+    };
+
+    const handleEmailInputChange = (event) => {
+        event.preventDefault();
+        dispatch(setEmail(event.target.value));
+    };
+
+    const handlePasswordInputChange = (event) => {
+        event.preventDefault();
+        dispatch(setPassword(event.target.value));
+    };
 
     const handleClickShowPassword = () => {
         //dispatch the action to the store
         dispatch(changePasswordVisibility());
-    }
-
-
-    const handleMouseDownPassword = (event) => {
-        event.preventDefault();
     };
 
+    const onSignIn = (event) => {
+        dispatch(signInUser({email, password}));
+        console.log(isLoading)
+    }
 
     return (
+
         <Box>
+            <div>{isLoading}</div>
+            {/*Welcome top bar*/}
             <Grid container rowSpacing={1}>
-                <Grid item xs={8}>
+                <Grid item xs={6} md={6}>
                     <h4 style={{color: "#3a3939"}}>
                         W&nbsp;e&nbsp;l&nbsp;c&nbsp;o&nbsp;m&nbsp;e&emsp;t&nbsp;o&emsp;<span
                         style={{
@@ -44,59 +62,52 @@ const LoginPage = () => {
                         }}>C</span>&nbsp;a&nbsp;l&nbsp;l&nbsp;e&nbsp;e&nbsp;
                     </h4>
                 </Grid>
-
-                <Grid item xs={4} sx={{textAlign: "end"}}>
+                <Grid item xs={6} md={6} sx={{textAlign: "end"}}>
                     <img src={Logo} alt="Logo"/>
                 </Grid>
-
             </Grid>
 
-            <Grid container rowSpacing={3} sx={{marginTop: "5dvh", marginBottom: "10dvh"}}>
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        id="standard-required"
-                        label="Full name"
-                        variant="standard"
-                        style={{width: '100%'}}
-                    />
-                </Grid>
-
-                <Grid item xs={12}>
-                    <TextField
-                        required
-                        id="standard-required"
-                        label="Phone Number"
-                        variant="standard"
-                        style={{width: '100%'}}
-                    />
-                </Grid>
-
-                <Grid item xs={12}>
-                    <FormControl sx={{width: '100%'}} variant="standard">
-                        <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
-                        <Input
-                            id="standard-adornment-password"
-                            type={showPassword ? 'text' : 'password'}
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={handleClickShowPassword}
-                                        onMouseDown={handleMouseDownPassword}
-                                    >
-                                        {showPassword ? <VisibilityOff/> : <Visibility/>}
-                                    </IconButton>
-                                </InputAdornment>
-                            }
+            {/* Sign in section*/}
+            <form>
+                <Grid container rowSpacing={3} sx={{marginTop: "5dvh", marginBottom: "10dvh"}}>
+                    {/*Name input*/}
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            autoComplete={"name"}
+                            label="Full name"
+                            variant="standard"
+                            onChange={handleUserNameInputChange}
+                            style={{width: '100%'}}
                         />
-                    </FormControl>
-                </Grid>
-            </Grid>
+                    </Grid>
 
-            <ColorButton variant="contained" style={{width: "100%"}}>Sign
-                in</ColorButton>
+                    {/*Email input*/}
+                    <Grid item xs={12}>
+                        <TextField
+                            required
+                            autoComplete="username"
+                            id="standard-required"
+                            label="Email"
+                            variant="standard"
+                            style={{width: '100%'}}
+                            onChange={handleEmailInputChange}
+                            type="email"
+                        />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <PasswordInput showPassword={showPassword}
+                                       handleClickShowPassword={handleClickShowPassword}
+                                       handlePasswordInputChange={handlePasswordInputChange}/>
+                    </Grid>
+                </Grid>
+
+                {/*Sign in button*/}
+                <ColorButton variant="contained" style={{width: "100%"}} onClick={onSignIn}>Sign in</ColorButton>
+            </form>
         </Box>
+
     );
 };
 
