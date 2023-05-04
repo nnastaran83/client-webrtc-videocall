@@ -56,25 +56,6 @@ const handleSignUp = (email, password) => {
 }
 
 /**
- * Sign in the user
- * @param email
- * @param password
- */
-const handleSignIn = (email, password) => {
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            // Signed in
-            const user = userCredential.user;
-            // ...
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-        });
-}
-
-
-/**
  * sign out the user
  */
 const handleSignOut = () => {
@@ -99,4 +80,4 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-export {db, auth, handleSignIn, handleSignUp, handleSignOut};
+export {db, auth, handleSignUp, handleSignOut};

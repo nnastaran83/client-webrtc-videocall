@@ -1,5 +1,5 @@
-import React, {useRef} from "react";
-import {Box, FormControl, FormGroup, Grid, Input, TextField} from "@mui/material";
+import React, {useEffect} from "react";
+import {Box, Grid, TextField} from "@mui/material";
 import Logo from "../assets/circular_logo.svg";
 import ColorButton from './themed_components/ColorButton.jsx';
 import {useDispatch, useSelector} from "react-redux";
@@ -9,14 +9,13 @@ import PasswordInput from "./PasswordInput.jsx";
 /**
  * Login Page
  * @returns {JSX.Element}
- * @constructor
+ * @component
  */
 const LoginPage = () => {
     const dispatch = useDispatch();
     const showPassword = useSelector(state => state.loginPage.showPassword);
-    const isLoading = useSelector(state => state.loginPage.isLoading);
+    const {email, password, user} = useSelector(state => state.loginPage);
 
-    const {email, password} = useSelector(state => state.loginPage);
 
     const handleUserNameInputChange = (event) => {
         event.preventDefault();
@@ -39,14 +38,15 @@ const LoginPage = () => {
     };
 
     const onSignIn = (event) => {
+        event.preventDefault();
         dispatch(signInUser({email, password}));
-        console.log(isLoading)
+
     }
 
     return (
 
         <Box>
-            <div>{isLoading}</div>
+            {console.log(store.getState())}
             {/*Welcome top bar*/}
             <Grid container rowSpacing={1}>
                 <Grid item xs={6} md={6}>

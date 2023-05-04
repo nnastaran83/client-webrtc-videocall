@@ -8,7 +8,7 @@ import React from "react";
  * @param handleClickShowPassword
  * @param handlePasswordInputChange
  * @returns {JSX.Element}
- * @constructor
+ * @component
  */
 const PasswordInput = ({showPassword, handleClickShowPassword, handlePasswordInputChange}) => {
 

@@ -12,6 +12,7 @@ const loginPageSlice = createSlice({
         showPassword: false,
         isLoading: false,
         error: null,
+        user: null,
 
     },
 
@@ -33,18 +34,19 @@ const loginPageSlice = createSlice({
         },
 
     },
+
     extraReducers(builder) {
         builder.addCase(signInUser.pending, (state) => {
-            state.isLoading = true;
-        });
-        builder.addCase(signInUser.fulfilled, (state) => {
-            state.isLoading = false;
-        });
-        builder.addCase(signInUser.rejected, (state, action) => {
-            state.isLoading = false;
-            state.error = action.error;
+            return {...state, isLoading: true};
         });
 
+        builder.addCase(signInUser.fulfilled, (state, action) => {
+            return {...state, isLoading: false, user: action.payload};
+        });
+
+        builder.addCase(signInUser.rejected, (state, action) => {
+            return {...state, isLoading: false, error: action.error};
+        });
 
     }
 });
