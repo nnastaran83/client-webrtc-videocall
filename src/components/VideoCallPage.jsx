@@ -196,6 +196,7 @@ function VideoCallPage() {
 
   return (
     <Box className={"webrtc-video-calling-app"}>
+      <DropdownMenu />
       <Grid container>
         <Grid item xs={12} sx={{ textAlign: "center" }}>
           <h2>1. Start your Webcam</h2>
