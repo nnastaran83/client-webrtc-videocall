@@ -46,7 +46,6 @@ const LoginPage = () => {
     return (
 
         <Box>
-            {console.log(store.getState())}
             {/*Welcome top bar*/}
             <Grid container rowSpacing={1}>
                 <Grid item xs={6} md={6}>
