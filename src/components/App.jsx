@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "../styles/App.css";
 import { Container, styled } from "@mui/material";
-import LoginPage from "./LoginPage.jsx";
+import Login from "./Login.jsx";
 import Root from "./themed_components/Root.jsx";
 import VideoCallPage from "./VideoCallPage.jsx";
-import useAuthState from "../hooks/useAuthState"; // Import the custom hook
+import { auth } from "../firebase_module";
+import { onAuthStateChanged } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { setEmail, setUser, store } from "../store";
 
 /**
  * App Container
@@ -12,17 +15,28 @@ import useAuthState from "../hooks/useAuthState"; // Import the custom hook
  * @component
  */
 function App() {
-  const [user, setUser] = useAuthState();
   const [page, setPage] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user) {
-      console.log(user);
-      setPage(<VideoCallPage />);
-    } else {
-      setPage(<LoginPage />);
-    }
-  }, [user]);
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        dispatch(setEmail(user.email));
+        userToJson(user).then((currentUser) => {
+          dispatch(setUser(currentUser));
+        });
+
+        setPage(<VideoCallPage />);
+      } else {
+        setPage(<Login />);
+      }
+    });
+  }, []);
+
+  const userToJson = async (user) => {
+    user = await user.toJSON();
+    return user;
+  };
 
   return (
     <Root>

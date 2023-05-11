@@ -1,10 +1,9 @@
 import React from "react";
 import DropdownMenu from "./themed_components/DropdownMenu.jsx";
 import { Box, Grid } from "@mui/material";
-import { auth } from "../firebase_module";
-import { signOut } from "firebase/auth";
 import { useEffect, useRef, useState } from "react";
 import { db } from "../firebase_module";
+
 import {
   collection,
   doc,
@@ -14,6 +13,8 @@ import {
   updateDoc,
   addDoc,
 } from "firebase/firestore";
+import { store } from "../store/index.js";
+import { useSelector } from "react-redux";
 
 /**
  * Video Calling Page using WebRTC
@@ -33,6 +34,7 @@ function VideoCallPage() {
   const [webcamButtonIsEnabled, setWebcamButtonIsEnabled] = useState(true);
   const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
   const [callInputValue, setCallInputValue] = useState("");
+  const currentUser = useSelector((state) => state.login.user);
 
   let localStream = null;
   let remoteStream = null;
@@ -51,8 +53,11 @@ function VideoCallPage() {
   };
 
   const [pc, setPc] = useState(new RTCPeerConnection(servers));
+
   useEffect(() => {
     console.log("Peer Connection Created");
+
+    console.log(currentUser);
   }, []);
 
   /**

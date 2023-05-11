@@ -1,17 +1,25 @@
-import {configureStore} from "@reduxjs/toolkit";
-import {loginPageReducer} from "./slices/loginPageSlice.js";
-import {changePasswordVisibility, setUserName, setEmail, setPassword} from "./slices/loginPageSlice.js";
-
+import { configureStore } from "@reduxjs/toolkit";
+import { loginReducer } from "./slices/loginSlice.js";
+import {
+  changePasswordVisibility,
+  setUserName,
+  setEmail,
+  setPassword,
+  setUser,
+} from "./slices/loginSlice.js";
 
 const store = configureStore({
-        reducer: {
-            loginPage: loginPageReducer
-        },
+  reducer: {
+    login: loginReducer,
+  },
+});
 
-    }
-);
-
-
-export {store};
-export {changePasswordVisibility, setUserName, setEmail, setPassword};
-export * from './thunks/signInUser.js';
+export { store };
+export {
+  changePasswordVisibility,
+  setUserName,
+  setEmail,
+  setPassword,
+  setUser,
+};
+export * from "./thunks/signInUser.js";
