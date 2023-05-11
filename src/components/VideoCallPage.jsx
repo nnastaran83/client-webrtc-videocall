@@ -220,7 +220,7 @@ function VideoCallPage() {
         </Grid>
         <Grid item xs={12} sx={{ textAlign: "center" }}>
           <div className="videos">
-            <span>
+            <div>
               <h3>Remote Stream</h3>
               <video
                 id="remoteVideo"
@@ -228,7 +228,7 @@ function VideoCallPage() {
                 playsInline
                 ref={remoteVideo}
               ></video>
-            </span>
+            </div>
           </div>
         </Grid>
         <Grid item xs={12} sx={{ textAlign: "center" }}>
