@@ -55,9 +55,10 @@ function VideoCallPage() {
   const [pc, setPc] = useState(new RTCPeerConnection(servers));
 
   useEffect(() => {
+    console.log(store.getState());
     console.log("Peer Connection Created");
 
-    console.log(currentUser);
+    console.log(store.getState());
   }, []);
 
   /**
@@ -159,7 +160,7 @@ function VideoCallPage() {
   };
 
   const handleAnswerButtonClick = async () => {
-    const callId = callInput.current.value;
+    const callId = currentUser.uid;
 
     // getting the data for this particular call
     const callDoc = doc(collection(db, "calls"), callId);
