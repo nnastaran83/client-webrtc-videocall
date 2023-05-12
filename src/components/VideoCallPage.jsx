@@ -3,6 +3,7 @@ import DropdownMenu from "./themed_components/DropdownMenu.jsx";
 import { Box, Grid } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { db } from "../firebase_module";
+import "../styles/VideoCallPage.css";
 
 import {
   collection,
@@ -55,10 +56,7 @@ function VideoCallPage() {
   const [pc, setPc] = useState(new RTCPeerConnection(servers));
 
   useEffect(() => {
-    console.log(store.getState());
     console.log("Peer Connection Created");
-
-    console.log(store.getState());
   }, []);
 
   /**
@@ -150,7 +148,7 @@ function VideoCallPage() {
     <Box>
       <DropdownMenu />
       <Grid container>
-        <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
+        <Grid item xs={12} md={6} lg={6} sx={{ textAlign: "center" }}>
           <div className={"videos"}>
             <h3>Local Stream</h3>
             <video
@@ -161,7 +159,7 @@ function VideoCallPage() {
             ></video>
           </div>
         </Grid>
-        <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
+        <Grid item xs={12} md={6} lg={6} sx={{ textAlign: "center" }}>
           <div className="videos">
             <h3>Remote Stream</h3>
             <video

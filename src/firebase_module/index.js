@@ -7,6 +7,7 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
 
 /**
  * Web Firebase configuration
@@ -26,6 +27,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
