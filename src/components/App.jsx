@@ -40,7 +40,9 @@ function App() {
 
   return (
     <Root>
-      <Container>{page}</Container>
+      <Container sx={{ maxWidth: "100vw", maxHeight: "100vh" }}>
+        {page}
+      </Container>
     </Root>
   );
 }

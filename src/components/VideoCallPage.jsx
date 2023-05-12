@@ -104,61 +104,6 @@ function VideoCallPage() {
     setWebcamButtonIsEnabled(false);
   };
 
-  /**
-   * Handles the click event of the answer button
-   * @returns {Promise<void>}
-   */
-  const handleCallButtonClick = async () => {
-    console.log("Call Button Clicked");
-
-    // referencing model_firebase collections
-    //const callDoc = db.collection("calls").doc();
-    const callDoc = doc(collection(db, "calls")); // Main collection in firestore
-    const offerCandidates = collection(callDoc, "offerCandidates"); //Sub collection of callDoc
-    const answerCandidiates = collection(callDoc, "answerCandidates"); //Sub collection of callDoc
-
-    setCallInputValue(callDoc.id); // setting the input value to the calldoc id
-
-    // get candidates for caller and save to db
-    pc.onicecandidate = (event) => {
-      event.candidate && addDoc(offerCandidates, event.candidate.toJSON());
-    };
-
-    // create offer
-    const offerDescription = await pc.createOffer();
-    await pc.setLocalDescription(offerDescription);
-
-    // config for offer
-    const offer = {
-      sdp: offerDescription.sdp,
-      type: offerDescription.type,
-    };
-
-    //await callDoc.set({ offer });
-    await setDoc(callDoc, { offer }); // setting the offer to the callDoc
-
-    // listening to changes in firestore and update the streams accordingly
-    onSnapshot(callDoc, (snapshot) => {
-      const data = snapshot.data();
-      if (!pc.currentRemoteDescription && data.answer) {
-        const answerDescription = new RTCSessionDescription(data.answer);
-        pc.setRemoteDescription(answerDescription);
-      }
-
-      // if answered add candidates to peer connection
-      onSnapshot(answerCandidiates, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added") {
-            const candidate = new RTCIceCandidate(change.doc.data());
-            pc.addIceCandidate(candidate);
-          }
-        });
-      });
-    });
-
-    setHangupButtonIsEnabled(true);
-  };
-
   const handleAnswerButtonClick = async () => {
     const callId = currentUser.uid;
 
@@ -198,16 +143,14 @@ function VideoCallPage() {
         }
       });
     });
+    setHangupButtonIsEnabled(true);
   };
 
   return (
-    <Box className={"webrtc-video-calling-app"}>
+    <Box>
       <DropdownMenu />
       <Grid container>
-        <Grid item xs={12} sx={{ textAlign: "center" }}>
-          <h2>1. Start your Webcam</h2>
-        </Grid>
-        <Grid item xs={12} sx={{ textAlign: "center" }}>
+        <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
           <div className={"videos"}>
             <h3>Local Stream</h3>
             <video
@@ -218,17 +161,15 @@ function VideoCallPage() {
             ></video>
           </div>
         </Grid>
-        <Grid item xs={12} sx={{ textAlign: "center" }}>
+        <Grid item xs={12} md={6} sx={{ textAlign: "center" }}>
           <div className="videos">
-            <div>
-              <h3>Remote Stream</h3>
-              <video
-                id="remoteVideo"
-                autoPlay
-                playsInline
-                ref={remoteVideo}
-              ></video>
-            </div>
+            <h3>Remote Stream</h3>
+            <video
+              id="remoteVideo"
+              autoPlay
+              playsInline
+              ref={remoteVideo}
+            ></video>
           </div>
         </Grid>
         <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -242,17 +183,7 @@ function VideoCallPage() {
             Start webcam
           </button>
         </Grid>
-        <Grid item xs={12} sx={{ textAlign: "center" }}>
-          <h2>2. Create a new Call</h2>
-          <button
-            id="callButton"
-            onClick={handleCallButtonClick}
-            ref={callButton}
-            disabled={!callButtonIsEnabled}
-          >
-            Create Call (offer)
-          </button>
-        </Grid>
+
         <Grid item xs={12} sx={{ textAlign: "center" }}>
           <div>
             <h2>3. Join a Call</h2>
