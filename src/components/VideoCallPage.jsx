@@ -150,7 +150,7 @@ function VideoCallPage() {
       <Grid container>
         <Grid item xs={12} md={6} lg={6} sx={{ textAlign: "center" }}>
           <div className={"videos"}>
-            <h3>Local Stream</h3>
+            <h3 style={{ backgroundColor: "red" }}>Local Stream</h3>
             <video
               id="webcamVideo"
               autoPlay
