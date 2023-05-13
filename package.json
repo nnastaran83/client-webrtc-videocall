@@ -1,10 +1,10 @@
 {
   "name": "smart-callee",
   "private": false,
-  "version": "0.0.1",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
-    "dev": "vite --force",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
