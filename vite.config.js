@@ -12,4 +12,5 @@ export default defineConfig({
     strictPort: true,
     port: 8000, // you can replace this port with any port
   },
+  publicDir: "public",
 });

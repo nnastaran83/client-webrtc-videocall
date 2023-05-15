@@ -12,6 +12,7 @@ import {
   store,
 } from "../store";
 import PasswordInput from "./PasswordInput.jsx";
+import { getMessagingToken } from "../firebase/index.jsx";
 
 /**
  * Login Page
@@ -46,6 +47,7 @@ const Login = () => {
   const onSignIn = (event) => {
     event.preventDefault();
     dispatch(signInUser({ email, password }));
+    getMessagingToken();
   };
 
   return (

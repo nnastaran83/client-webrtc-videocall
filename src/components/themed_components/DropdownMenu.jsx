@@ -5,7 +5,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { IconButton } from "@mui/material";
 import { signOut } from "firebase/auth";
-import { auth } from "../../firebase_module/index.js";
+import { auth } from "../../firebase";
 
 /**
  * Customized styled menu component

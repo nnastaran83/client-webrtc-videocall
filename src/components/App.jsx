@@ -4,10 +4,10 @@ import { Container, styled } from "@mui/material";
 import Login from "./Login.jsx";
 import Root from "./themed_components/Root.jsx";
 import VideoCallPage from "./VideoCallPage.jsx";
-import { auth } from "../firebase_module";
+import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useDispatch } from "react-redux";
-import { setEmail, setUser, store } from "../store";
+import { setEmail, setUser, store, setMessage } from "../store";
 
 /**
  * App Container
@@ -40,6 +40,7 @@ function App() {
 
   return (
     <Root>
+      {console.log(store.getState())}
       <Container sx={{ maxWidth: "100vw", maxHeight: "100vh" }}>
         {page}
       </Container>

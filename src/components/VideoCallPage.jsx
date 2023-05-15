@@ -2,7 +2,7 @@ import React from "react";
 import DropdownMenu from "./themed_components/DropdownMenu.jsx";
 import { Box, Grid } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { db } from "../firebase_module";
+import { db } from "../firebase";
 import "../styles/VideoCallPage.css";
 
 import {
