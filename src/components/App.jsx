@@ -51,7 +51,7 @@ function App() {
         title: payload.notification.title,
         body: payload.notification.body,
       });
-      console.log(payload);
+      console.log("mimim", payload);
     })
     .catch((err) => console.log("failed: ", err));
 
