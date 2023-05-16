@@ -147,10 +147,12 @@ function VideoCallPage() {
   return (
     <Box>
       <DropdownMenu />
-      <Grid container>
+      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
         <Grid item xs={12} md={6} lg={6} sx={{ textAlign: "center" }}>
-          <div className={"videos"}>
-            <h3 style={{ backgroundColor: "red" }}>Local Stream</h3>
+          <div
+            className={"videoBackground"}
+            style={{ borderRadius: 5, backgroundColor: "#0A0A0A" }}
+          >
             <video
               id="webcamVideo"
               autoPlay
@@ -160,8 +162,10 @@ function VideoCallPage() {
           </div>
         </Grid>
         <Grid item xs={12} md={6} lg={6} sx={{ textAlign: "center" }}>
-          <div className="videos">
-            <h3>Remote Stream</h3>
+          <div
+            className="videoBackground"
+            style={{ borderRadius: 5, backgroundColor: "#0A0A0A" }}
+          >
             <video
               id="remoteVideo"
               autoPlay

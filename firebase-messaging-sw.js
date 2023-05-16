@@ -17,7 +17,18 @@ const firebaseConfig = {
   measurementId: "G-XLLC8D755N",
 };
 const app = firebase.initializeApp(firebaseConfig);
-const messaging = app.messaging();
-messaging.onBackgroundMessage((message) => {
-  console.log(message);
+const messaging = firebase.messaging();
+messaging.onBackgroundMessage((payload) => {
+  console.log(
+    "[firebase-messaging-sw.js] Received background message ",
+    payload
+  );
+  // Customize notification here
+  const notificationTitle = "Background Message Title";
+  const notificationOptions = {
+    body: "Background Message body.",
+    icon: "/logo192.svg",
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
