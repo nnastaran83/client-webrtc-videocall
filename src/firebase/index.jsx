@@ -15,9 +15,12 @@ const auth = getAuth(firebaseApp);
 // Initialize Firebase Cloud Messaging and get a reference to the service
 const messaging = getMessaging(firebaseApp);
 
-onMessage(messaging, (payload) => {
-  console.log("payload", payload);
-});
+export const onMessageListener = () =>
+  new Promise((resolve) => {
+    onMessage(messaging, (payload) => {
+      resolve(payload);
+    });
+  });
 
 const getMessagingToken = () => {
   getToken(messaging, {

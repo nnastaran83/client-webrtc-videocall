@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "../styles/App.css";
-import { Container, styled } from "@mui/material";
+import { Button, Container, IconButton, Snackbar, styled } from "@mui/material";
 import Login from "./Login.jsx";
 import Root from "./themed_components/Root.jsx";
 import VideoCallPage from "./VideoCallPage.jsx";
-import { auth } from "../firebase";
+import { auth, onMessageListener } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setEmail, setUser, store, setMessage } from "../store";
+import CloseIcon from "@mui/icons-material/Close";
 
 /**
  * App Container
@@ -16,7 +17,43 @@ import { setEmail, setUser, store, setMessage } from "../store";
  */
 function App() {
   const [page, setPage] = useState(null);
+  const [show, setShow] = useState(false);
+  const [notification, setNotification] = useState({ title: "", body: "" });
+  const [isTokenFound, setTokenFound] = useState(false);
   const dispatch = useDispatch();
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setShow(false);
+  };
+  const action = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={handleClose}>
+        UNDO
+      </Button>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+  onMessageListener()
+    .then((payload) => {
+      setShow(true);
+      setNotification({
+        title: payload.notification.title,
+        body: payload.notification.body,
+      });
+      console.log(payload);
+    })
+    .catch((err) => console.log("failed: ", err));
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -40,6 +77,13 @@ function App() {
 
   return (
     <Root>
+      <Snackbar
+        open={show}
+        autoHideDuration={6000}
+        onClose={() => setShow(false)}
+        message={notification.title}
+        action={action}
+      />
       {console.log(store.getState())}
       <Container sx={{ maxWidth: "100vw", maxHeight: "100vh" }}>
         {page}
