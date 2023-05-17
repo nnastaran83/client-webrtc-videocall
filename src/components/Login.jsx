@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Box, Grid, TextField } from "@mui/material";
 import Logo from "../assets/circular_logo.svg";
 import ColorButton from "./themed_components/ColorButton.jsx";
@@ -23,19 +23,13 @@ const Login = () => {
   const dispatch = useDispatch();
   const showPassword = useSelector((state) => state.login.showPassword);
   const { email, password, user } = useSelector((state) => state.login);
-
-  const handleUserNameInputChange = (event) => {
-    event.preventDefault();
-    dispatch(setUserName(event.target.value));
-  };
+  const userNameRef = useRef();
 
   const handleEmailInputChange = (event) => {
-    event.preventDefault();
     dispatch(setEmail(event.target.value));
   };
 
   const handlePasswordInputChange = (event) => {
-    event.preventDefault();
     dispatch(setPassword(event.target.value));
   };
 
@@ -44,10 +38,18 @@ const Login = () => {
     dispatch(changePasswordVisibility());
   };
 
-  const onSignIn = (event) => {
+  //const onSignIn = (event) => {
+  //  event.preventDefault();
+  //  dispatch(signInUser({ email, password }));
+  //  getMessagingToken();
+  //};
+
+  const handleSignIn = (event) => {
     event.preventDefault();
+    dispatch(setUserName(userNameRef.current.value));
     dispatch(signInUser({ email, password }));
     getMessagingToken();
+    console.log(store.getState());
   };
 
   return (
@@ -83,7 +85,7 @@ const Login = () => {
       </Grid>
 
       {/* Sign in section*/}
-      <form>
+      <form onSubmit={handleSignIn}>
         <Grid
           container
           rowSpacing={3}
@@ -96,7 +98,7 @@ const Login = () => {
               autoComplete={"name"}
               label="Full name"
               variant="standard"
-              onChange={handleUserNameInputChange}
+              inputRef={userNameRef}
               style={{ width: "100%" }}
             />
           </Grid>
@@ -105,7 +107,7 @@ const Login = () => {
           <Grid item xs={12}>
             <TextField
               required
-              autoComplete="username"
+              autoComplete="email"
               id="standard-required"
               label="Email"
               variant="standard"
@@ -128,7 +130,7 @@ const Login = () => {
         <ColorButton
           variant="contained"
           style={{ width: "100%" }}
-          onClick={onSignIn}
+          type={"submit"}
         >
           Sign in
         </ColorButton>
