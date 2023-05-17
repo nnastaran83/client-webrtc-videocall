@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Grid, TextField } from "@mui/material";
 import Logo from "../assets/circular_logo.svg";
 import ColorButton from "./themed_components/ColorButton.jsx";
@@ -22,12 +22,10 @@ import { getMessagingToken } from "../firebase/index.jsx";
 const Login = () => {
   const dispatch = useDispatch();
   const showPassword = useSelector((state) => state.login.showPassword);
-  const { email, password, user } = useSelector((state) => state.login);
-  const userNameRef = useRef();
-
-  const handleEmailInputChange = (event) => {
-    dispatch(setEmail(event.target.value));
-  };
+  const { password } = useSelector((state) => state.login);
+  const fullNameRef = useRef();
+  const [fullNameError, setFullNameError] = useState(false);
+  const emailRef = useRef();
 
   const handlePasswordInputChange = (event) => {
     dispatch(setPassword(event.target.value));
@@ -38,16 +36,14 @@ const Login = () => {
     dispatch(changePasswordVisibility());
   };
 
-  //const onSignIn = (event) => {
-  //  event.preventDefault();
-  //  dispatch(signInUser({ email, password }));
-  //  getMessagingToken();
-  //};
-
+  /**
+   * Sign in the user + get the messaging token
+   * @param event
+   */
   const handleSignIn = (event) => {
     event.preventDefault();
-    dispatch(setUserName(userNameRef.current.value));
-    dispatch(signInUser({ email, password }));
+    dispatch(setUserName(fullNameRef.current.value));
+    dispatch(signInUser({ email: emailRef.current.value, password: password }));
     getMessagingToken();
     console.log(store.getState());
   };
@@ -85,7 +81,7 @@ const Login = () => {
       </Grid>
 
       {/* Sign in section*/}
-      <form onSubmit={handleSignIn}>
+      <Box component={"form"} onSubmit={handleSignIn}>
         <Grid
           container
           rowSpacing={3}
@@ -94,11 +90,12 @@ const Login = () => {
           {/*Name input*/}
           <Grid item xs={12}>
             <TextField
+              error={fullNameError}
               required
               autoComplete={"name"}
               label="Full name"
               variant="standard"
-              inputRef={userNameRef}
+              inputRef={fullNameRef}
               style={{ width: "100%" }}
             />
           </Grid>
@@ -112,7 +109,7 @@ const Login = () => {
               label="Email"
               variant="standard"
               style={{ width: "100%" }}
-              onChange={handleEmailInputChange}
+              inputRef={emailRef}
               type="email"
             />
           </Grid>
@@ -134,7 +131,7 @@ const Login = () => {
         >
           Sign in
         </ColorButton>
-      </form>
+      </Box>
     </Box>
   );
 };
