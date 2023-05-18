@@ -1,21 +1,21 @@
 import React from "react";
-import DropdownMenu from "./themed_components/DropdownMenu.jsx";
-import { Box, Grid } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
-import { db } from "../firebase";
+import DropdownMenu from "./DropdownMenu.jsx";
+import {Box, Button, Grid, styled} from "@mui/material";
+import {useEffect, useRef, useState} from "react";
+import {db} from "../firebase";
 import "../styles/VideoCallPage.css";
 
 import {
-  collection,
-  doc,
-  setDoc,
-  onSnapshot,
-  getDoc,
-  updateDoc,
-  addDoc,
+    collection,
+    doc,
+    setDoc,
+    onSnapshot,
+    getDoc,
+    updateDoc,
+    addDoc,
 } from "firebase/firestore";
-import { store } from "../store/index.js";
-import { useSelector } from "react-redux";
+import {store} from "../store/index.js";
+import {useSelector} from "react-redux";
 
 /**
  * Video Calling Page using WebRTC
@@ -23,202 +23,224 @@ import { useSelector } from "react-redux";
  * @constructor
  */
 function VideoCallPage() {
-  const webcamButton = useRef(null);
-  const webcamVideo = useRef(null);
-  const callButton = useRef(null);
-  const callInput = useRef(null);
-  const answerButton = useRef(null);
-  const remoteVideo = useRef(null);
-  const hangupButton = useRef(null);
-  const [callButtonIsEnabled, setCallButtonIsEnabled] = useState(false);
-  const [answerButtonIsEnabled, setAnswerButtonIsEnabled] = useState(false);
-  const [webcamButtonIsEnabled, setWebcamButtonIsEnabled] = useState(true);
-  const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
-  const [callInputValue, setCallInputValue] = useState("");
-  const currentUser = useSelector((state) => state.login.user);
+    const webcamButton = useRef(null);
+    const webcamVideo = useRef(null);
+    const callButton = useRef(null);
+    const callInput = useRef(null);
+    const answerButton = useRef(null);
+    const remoteVideo = useRef(null);
+    const hangupButton = useRef(null);
+    const [callButtonIsEnabled, setCallButtonIsEnabled] = useState(false);
+    const [answerButtonIsEnabled, setAnswerButtonIsEnabled] = useState(false);
+    const [webcamButtonIsEnabled, setWebcamButtonIsEnabled] = useState(true);
+    const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
+    const [callInputValue, setCallInputValue] = useState("");
+    const currentUser = useSelector((state) => state.login.user);
 
-  let localStream = null;
-  let remoteStream = null;
+    let localStream = null;
+    let remoteStream = null;
 
-  // server config
-  const servers = {
-    iceServers: [
-      {
-        urls: [
-          "stun:stun1.l.google.com:19302",
-          "stun:stun2.l.google.com:19302",
-        ], // free stun server
-      },
-    ],
-    iceCandidatePoolSize: 10,
-  };
-
-  const [pc, setPc] = useState(new RTCPeerConnection(servers));
-
-  useEffect(() => {
-    console.log("Peer Connection Created");
-  }, []);
-
-  /**
-   * Handles the click event of the webcam button
-   * @returns {Promise<void>}
-   */
-  const handleWebcamButtonClick = async () => {
-    console.log("Webcam Button Clicked");
-    // setting local stream to the video from our camera
-
-    localStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-
-    // Pushing tracks from local stream to peerConnection
-    localStream.getTracks().forEach((track) => {
-      pc.addTrack(track, localStream);
-    });
-
-    // displaying the video data from the stream to the webpage
-    webcamVideo.current.srcObject = localStream;
-
-    // initalizing the remote server to the mediastream
-    remoteStream = new MediaStream();
-    // pc.addEventListener("track", async (event) => {
-    //   const [remoteStream] = event.streams;
-    //   remoteVideo.current.srcObject = remoteStream;
-    // });
-    remoteVideo.current.srcObject = remoteStream;
-
-    pc.ontrack = (event) => {
-      event.streams[0].getTracks().forEach((track) => {
-        console.log("Adding track to remoteStream", track);
-        remoteStream.addTrack(track);
-      });
-      remoteVideo.current.srcObject = remoteStream;
+    // server config
+    const servers = {
+        iceServers: [
+            {
+                urls: [
+                    "stun:stun1.l.google.com:19302",
+                    "stun:stun2.l.google.com:19302",
+                ], // free stun server
+            },
+        ],
+        iceCandidatePoolSize: 10,
     };
 
-    // enabling and disabling interface based on the current condition
-    setCallButtonIsEnabled(true);
-    setAnswerButtonIsEnabled(true);
-    setWebcamButtonIsEnabled(false);
-  };
+    const [pc, setPc] = useState(new RTCPeerConnection(servers));
 
-  const handleAnswerButtonClick = async () => {
-    const callId = currentUser.uid;
+    useEffect(() => {
+        console.log("Peer Connection Created");
+        startWebCam();
+    }, []);
 
-    // getting the data for this particular call
-    const callDoc = doc(collection(db, "calls"), callId);
-    const answerCandidates = collection(callDoc, "answerCandidates");
-    const offerCandidates = collection(callDoc, "offerCandidates");
+    /**
+     * Handles the click event of the webcam button
+     * @returns {Promise<void>}
+     */
+    const startWebCam = async () => {
+        console.log("Webcam Button Clicked");
+        // setting local stream to the video from our camera
 
-    // here we listen to the changes and add it to the answerCandidates
-    pc.onicecandidate = (event) => {
-      event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
+        localStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+        });
+
+        // Pushing tracks from local stream to peerConnection
+        localStream.getTracks().forEach((track) => {
+            pc.addTrack(track, localStream);
+        });
+
+        // displaying the video data from the stream to the webpage
+        webcamVideo.current.srcObject = localStream;
+
+        // initalizing the remote server to the mediastream
+        remoteStream = new MediaStream();
+
+        remoteVideo.current.srcObject = remoteStream;
+
+        pc.ontrack = (event) => {
+            event.streams[0].getTracks().forEach((track) => {
+                console.log("Adding track to remoteStream", track);
+                remoteStream.addTrack(track);
+            });
+            remoteVideo.current.srcObject = remoteStream;
+        };
+
+        // enabling and disabling interface based on the current condition
+        setCallButtonIsEnabled(true);
+        setAnswerButtonIsEnabled(true);
+        setWebcamButtonIsEnabled(false);
     };
 
-    const callData = (await getDoc(callDoc)).data();
+    /**
+     * Handles the click event of the answer button
+     * @returns {Promise<void>}
+     */
+    const handleAnswerButtonClick = async () => {
+        const callId = currentUser.uid;
 
-    // setting the remote video with offerDescription
-    const offerDescription = callData.offer;
-    await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+        // getting the data for this particular call
+        const callDoc = doc(collection(db, "calls"), callId);
+        const answerCandidates = collection(callDoc, "answerCandidates");
+        const offerCandidates = collection(callDoc, "offerCandidates");
 
-    // setting the local video as the answer
-    const answerDescription = await pc.createAnswer();
-    await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
+        // here we listen to the changes and add it to the answerCandidates
+        pc.onicecandidate = (event) => {
+            event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
+        };
 
-    // answer config
-    const answer = {
-      type: answerDescription.type,
-      sdp: answerDescription.sdp,
+        const callData = (await getDoc(callDoc)).data();
+
+        // setting the remote video with offerDescription
+        const offerDescription = callData.offer;
+        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+
+        // setting the local video as the answer
+        const answerDescription = await pc.createAnswer();
+        await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
+
+        // answer config
+        const answer = {
+            type: answerDescription.type,
+            sdp: answerDescription.sdp,
+        };
+
+        await updateDoc(callDoc, {answer});
+
+        onSnapshot(offerCandidates, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    let data = change.doc.data();
+                    pc.addIceCandidate(new RTCIceCandidate(data));
+                }
+            });
+        });
+        setHangupButtonIsEnabled(true);
     };
 
-    await updateDoc(callDoc, { answer });
+    return (
+        <Box style={{
+            height: "100vh",
+            maxHeight: "100vh",
+        
+        }}>
+            <div style={{position: "fixed", top: 0, right: 0, padding: "5px"}}>
+                <DropdownMenu/>
+            </div>
 
-    onSnapshot(offerCandidates, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          let data = change.doc.data();
-          pc.addIceCandidate(new RTCIceCandidate(data));
-        }
-      });
-    });
-    setHangupButtonIsEnabled(true);
-  };
+            <Grid container
+                  style={{height: "100%", maxHeight: "100%"}}>
+                <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <div style={{height: "100%", maxHeight: "100%"}}>
+                        <video
+                            style={{
+                                borderRadius: 5,
+                                backgroundColor: "#0A0A0A",
+                                objectFit: "cover",
+                                width: "100%",
+                                height: "100%"
+                            }}
+                            id="webcamVideo"
+                            autoPlay
+                            playsInline
+                            ref={webcamVideo}
+                        ></video>
 
-  return (
-    <Box>
-      <DropdownMenu />
-      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-        <Grid item xs={12} md={6} lg={6} sx={{ textAlign: "center" }}>
-          <div
-            className={"videoBackground"}
-            style={{ borderRadius: 5, backgroundColor: "#0A0A0A" }}
-          >
-            <video
-              id="webcamVideo"
-              autoPlay
-              playsInline
-              ref={webcamVideo}
-            ></video>
-          </div>
-        </Grid>
-        <Grid item xs={12} md={6} lg={6} sx={{ textAlign: "center" }}>
-          <div
-            className="videoBackground"
-            style={{ borderRadius: 5, backgroundColor: "#0A0A0A" }}
-          >
-            <video
-              id="remoteVideo"
-              autoPlay
-              playsInline
-              ref={remoteVideo}
-            ></video>
-          </div>
-        </Grid>
-        <Grid item xs={12} sx={{ textAlign: "center" }}>
-          <button
-            id="webcamButton"
-            onClick={handleWebcamButtonClick}
-            ref={webcamButton}
-            disabled={!webcamButtonIsEnabled}
-          >
-            {" "}
-            Start webcam
-          </button>
-        </Grid>
+                    </div>
 
-        <Grid item xs={12} sx={{ textAlign: "center" }}>
-          <div>
-            <h2>3. Join a Call</h2>
-            <p>Answer the call from a different browser window or device</p>
+                </Grid>
+                <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <div style={{height: "100%", maxHeight: "100%"}}>
+                        <video
+                            style={{
+                                borderRadius: 5,
+                                backgroundColor: "#0A0A0A",
+                                objectFit: "cover",
+                                width: "100%",
+                                height: "100%"
+                            }}
+                            id="remoteVideo"
+                            autoPlay
+                            playsInline
+                            ref={remoteVideo}
+                        ></video>
 
-            <input
-              id="callInput"
-              ref={callInput}
-              defaultValue={callInputValue}
-            />
-            <button
-              id="answerButton"
-              onClick={handleAnswerButtonClick}
-              disabled={!answerButtonIsEnabled}
-              ref={answerButton}
-            >
-              Answer
-            </button>
+                    </div>
 
-            <h2>4. Hangup</h2>
+                </Grid>
+            </Grid>
+            <Grid container style={{position: "fixed", left: 0, bottom: 0, marginBottom: "1rem"}}>
+                <Grid item xs={4} md={4} lg={4} sx={{textAlign: "right"}}>
 
-            <button
-              id="hangupButton"
-              disabled={!hangupButtonIsEnabled}
-              ref={hangupButton}
-            >
-              Hangup
-            </button>
-          </div>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+                    <Button
+                        id="answerButton"
+                        onClick={handleAnswerButtonClick}
+                        disabled={!answerButtonIsEnabled}
+                        ref={answerButton}
+                        style={{
+                            backgroundColor: `#00DE00`
+                        }} variant="contained">JOIN</Button>
+
+                </Grid>
+                <Grid item xs={4} md={4} lg={4} sx={{textAlign: "center"}}>
+                    <Button
+                        id="hangupButton"
+                        ref={hangupButton}
+                        disabled={!hangupButtonIsEnabled}
+                        style={{
+                            backgroundColor: `#FF0000`,
+                        }}
+                        variant="contained"
+                    >
+                        X
+                    </Button>
+                </Grid>
+                <Grid item xs={4} md={4} lg={4} sx={{textAlign: "left"}}>
+                    <Button
+                        id="approveButton"
+                        disabled={!hangupButtonIsEnabled}
+                        style={{
+                            backgroundColor: `#715DFF`,
+                        }}
+                        variant="contained"
+                    >
+                        App
+                    </Button>
+                </Grid>
+
+            </Grid>
+
+        </Box>
+    );
 }
+
 
 export default VideoCallPage;

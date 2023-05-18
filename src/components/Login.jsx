@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Box, Grid, TextField } from "@mui/material";
+import { Box, Button, Grid, TextField, ThemeProvider } from "@mui/material";
 import Logo from "../assets/circular_logo.svg";
-import ColorButton from "./themed_components/ColorButton.jsx";
+import CustomButton from "./themed_components/CustomButton.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changePasswordVisibility,
@@ -13,6 +13,7 @@ import {
 } from "../store";
 import PasswordInput from "./PasswordInput.jsx";
 import { getMessagingToken } from "../firebase/index.jsx";
+import { blue } from "@mui/material/colors";
 
 /**
  * Login Page
@@ -124,13 +125,14 @@ const Login = () => {
         </Grid>
 
         {/*Sign in button*/}
-        <ColorButton
+
+        <CustomButton
           variant="contained"
           style={{ width: "100%" }}
           type={"submit"}
         >
           Sign in
-        </ColorButton>
+        </CustomButton>
       </Box>
     </Box>
   );
