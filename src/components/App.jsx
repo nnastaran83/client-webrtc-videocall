@@ -85,7 +85,7 @@ function App() {
                 action={action}
             />
             {console.log(store.getState())}
-            <Container sx={{maxWidth: "100%", maxHeight: "100%"}}>
+            <Container sx={{maxHeight: "100%"}}>
                 {page}
             </Container>
         </Root>

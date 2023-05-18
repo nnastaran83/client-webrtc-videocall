@@ -11,9 +11,7 @@ const Root = styled('div')(({theme}) => ({
     [theme.breakpoints.up('md')]: {
         padding: "2rem",
     },
-    [theme.breakpoints.up('lg')]: {
-        padding: "2rem",
-    },
+  
 }));
 
 export default Root;

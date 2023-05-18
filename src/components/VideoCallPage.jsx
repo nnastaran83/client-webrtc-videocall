@@ -65,7 +65,6 @@ function VideoCallPage() {
      * @returns {Promise<void>}
      */
     const startWebCam = async () => {
-        console.log("Webcam Button Clicked");
         // setting local stream to the video from our camera
 
         localStream = await navigator.mediaDevices.getUserMedia({
@@ -147,26 +146,28 @@ function VideoCallPage() {
     };
 
     return (
-        <Box style={{
-            height: "100vh",
-            maxHeight: "100vh",
-        
-        }}>
-            <div style={{position: "fixed", top: 0, right: 0, padding: "5px"}}>
+        <Box style={{maxHeight: "100%"}}>
+            <div style={{position: "absolute", top: 0, right: 0}}>
                 <DropdownMenu/>
             </div>
 
-            <Grid container
-                  style={{height: "100%", maxHeight: "100%"}}>
+            <Grid container rowSpacing={1} style={{maxHeight: "100%"}}>
                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                    <div style={{height: "100%", maxHeight: "100%"}}>
+                    <div style={{
+                        height: "100%",
+                        maxHeight: "100%",
+
+                    }}>
                         <video
                             style={{
                                 borderRadius: 5,
-                                backgroundColor: "#0A0A0A",
                                 objectFit: "cover",
                                 width: "100%",
-                                height: "100%"
+                                height: "100%",
+                                maxHeight: "100%",
+                                backgroundColor: "#0A0A0A",
+
+
                             }}
                             id="webcamVideo"
                             autoPlay
@@ -178,14 +179,21 @@ function VideoCallPage() {
 
                 </Grid>
                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                    <div style={{height: "100%", maxHeight: "100%"}}>
+                    <div style={{
+
+                        height: "100%",
+                        maxHeight: "100%",
+                    }}>
                         <video
                             style={{
                                 borderRadius: 5,
-                                backgroundColor: "#0A0A0A",
                                 objectFit: "cover",
                                 width: "100%",
-                                height: "100%"
+                                height: "100%",
+                                maxHeight: "100%",
+                                backgroundColor: "#0A0A0A",
+
+
                             }}
                             id="remoteVideo"
                             autoPlay
@@ -197,7 +205,7 @@ function VideoCallPage() {
 
                 </Grid>
             </Grid>
-            <Grid container style={{position: "fixed", left: 0, bottom: 0, marginBottom: "1rem"}}>
+            <Grid container style={{position: "fixed", left: 0, bottom: 0, paddingBottom: "1rem"}}>
                 <Grid item xs={4} md={4} lg={4} sx={{textAlign: "right"}}>
 
                     <Button

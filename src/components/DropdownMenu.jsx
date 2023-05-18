@@ -28,7 +28,7 @@ function DropdownMenu() {
 
     return (
         <div>
-            <Button
+            <IconButton
                 id="demo-customized-button"
                 aria-controls={open ? "demo-customized-menu" : undefined}
                 aria-haspopup="true"
@@ -37,7 +37,7 @@ function DropdownMenu() {
                 onClick={handleClick}
             >
                 <MoreVertIcon/>
-            </Button>
+            </IconButton>
             <StyledMenu
                 id="demo-customized-menu"
                 MenuListProps={{
