@@ -75,7 +75,7 @@ function App() {
     };
 
     return (
-        <Root>
+        <Root style={{height: "100%"}}>
             <Snackbar
                 open={show}
                 autoHideDuration={6000}
@@ -83,7 +83,7 @@ function App() {
                 message={notification.title}
                 action={action}
             />
-            <Container sx={{maxHeight: "100%"}}>
+            <Container sx={{height: "100%"}}>
                 {page}
             </Container>
         </Root>

@@ -95,9 +95,7 @@ function VideoCallPage() {
         };
 
         // enabling and disabling interface based on the current condition
-        setCallButtonIsEnabled(true);
         setAnswerButtonIsEnabled(true);
-        setWebcamButtonIsEnabled(false);
     };
 
     /**
@@ -147,19 +145,32 @@ function VideoCallPage() {
     };
 
     return (
-        <Box sx={{height: "100%", width: "100%", maxHeight: "100%", maxWidth: "100%"}}>
+        <Box sx={{
+            height: "100%",
+            width: "100%",
+            maxHeight: "100%",
+            maxWidth: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+            top: "0px",
+            right: "0px",
+            bottom: "0px",
+            left: "0px"
+        }}>
             <Container>
                 <Box sx={{position: "fixed", top: 0, right: 0}}>
                     <DropdownMenu/>
                 </Box>
 
-                <Grid container rowSpacing={1} columnSpacing={1} sx={{maxHeight: "100%"}}>
-                    <Grid item xs={12} sm={6} md={6} lg={6}>
-                        <Box sx={{width: "100%", height: "100%"}}>
+                <Grid container rowSpacing={1} columnSpacing={1}>
+                    <Grid item xs={12} sm={6} md={6} lg={6} sx={{textAlign: "center"}}>
+                        <Box sx={{width: "100%", height: "100%", maxHeight: "45vh"}}>
 
                             <video
                                 style={{
-                                    aspectRatio: "1/1",
+                                    objectFit: "cover",
                                     borderRadius: 5,
                                     width: "100%",
                                     height: "100%",
@@ -177,12 +188,12 @@ function VideoCallPage() {
                         </Box>
 
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={6}>
-                        <Box sx={{width: "100%", height: "100%"}}>
+                    <Grid item xs={12} sm={6} md={6} lg={6} sx={{textAlign: "center"}}>
+                        <Box sx={{width: "100%", height: "100%", maxHeight: "45vh"}}>
 
                             <video
                                 style={{
-                                    aspectRatio: "1/1",
+                                    objectFit: "cover",
                                     borderRadius: 5,
                                     width: "100%",
                                     height: "100%",
@@ -201,8 +212,9 @@ function VideoCallPage() {
 
                     </Grid>
                 </Grid>
-                <Grid container style={{position: "sticky", bottom: 0, paddingBottom: "1rem", paddingTop: "1rem"}}>
-                    <Grid item xs={4} md={4} lg={4} sx={{textAlign: "right"}}>
+                <Grid container
+                      sx={{position: "sticky", bottom: 0, paddingBottom: "1rem", paddingTop: "1rem"}}>
+                    <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
 
                         <Button
                             id="answerButton"
@@ -210,11 +222,11 @@ function VideoCallPage() {
                             disabled={!answerButtonIsEnabled}
                             ref={answerButton}
                             style={{
-                                backgroundColor: `#00DE00`
+                                backgroundColor: `#00DE00`,
                             }} variant="contained">JOIN</Button>
 
                     </Grid>
-                    <Grid item xs={4} md={4} lg={4} sx={{textAlign: "center"}}>
+                    <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
                         <Button
                             id="hangupButton"
                             ref={hangupButton}
@@ -227,18 +239,7 @@ function VideoCallPage() {
                             X
                         </Button>
                     </Grid>
-                    <Grid item xs={4} md={4} lg={4} sx={{textAlign: "left"}}>
-                        <Button
-                            id="approveButton"
-                            disabled={!hangupButtonIsEnabled}
-                            style={{
-                                backgroundColor: `#715DFF`,
-                            }}
-                            variant="contained"
-                        >
-                            App
-                        </Button>
-                    </Grid>
+
                 </Grid>
             </Container>
         </Box>
