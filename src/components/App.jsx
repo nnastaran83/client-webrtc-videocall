@@ -84,7 +84,6 @@ function App() {
                 message={notification.title}
                 action={action}
             />
-            {console.log(store.getState())}
             <Container sx={{maxHeight: "100%"}}>
                 {page}
             </Container>
