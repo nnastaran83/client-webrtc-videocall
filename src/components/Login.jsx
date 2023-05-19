@@ -116,7 +116,7 @@ const Login = () => {
 
                 <CustomButton
                     variant="contained"
-                    style={{width: "100%"}}
+                    style={{width: "100%", marginTop: "2rem"}}
                     type={"submit"}
                 >
                     Sign in

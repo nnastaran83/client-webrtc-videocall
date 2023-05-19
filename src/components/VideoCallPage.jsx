@@ -147,52 +147,57 @@ function VideoCallPage() {
     };
 
     return (
-        <Box sx={{height: "100%", maxHeight: "100%", maxWidth: "100%"}}>
+        <Box sx={{height: "100%", width: "100%", maxHeight: "100%", maxWidth: "100%"}}>
             <Container>
-
                 <Box sx={{position: "fixed", top: 0, right: 0}}>
                     <DropdownMenu/>
                 </Box>
 
-                <Grid container rowSpacing={1} sx={{maxHeight: "100%"}}>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <video
-                            style={{
-                                objectFit: "cover",
-                                borderRadius: 5,
-                                width: "100%",
-                                height: "100%",
-                                maxHeight: "100%",
-                                maxWidth: "100%",
-                                backgroundColor: "#0A0A0A",
-                                transform: "scale(-1, 1)",
+                <Grid container rowSpacing={1} columnSpacing={1} sx={{maxHeight: "100%"}}>
+                    <Grid item xs={12} sm={6} md={6} lg={6}>
+                        <Box sx={{width: "100%", height: "100%"}}>
 
-                            }}
-                            id="webcamVideo"
-                            autoPlay
-                            playsInline
-                            ref={webcamVideo}
-                        ></video>
+                            <video
+                                style={{
+                                    aspectRatio: "1/1",
+                                    borderRadius: 5,
+                                    width: "100%",
+                                    height: "100%",
+                                    maxHeight: "100%",
+                                    maxWidth: "100%",
+                                    backgroundColor: "#0A0A0A",
+                                    transform: "scale(-1, 1)",
+
+                                }}
+                                id="webcamVideo"
+                                autoPlay
+                                playsInline
+                                ref={webcamVideo}
+                            ></video>
+                        </Box>
 
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <video
-                            style={{
-                                objectFit: "cover",
-                                borderRadius: 5,
-                                width: "100%",
-                                height: "100%",
-                                maxHeight: "100%",
-                                maxWidth: "100%",
-                                backgroundColor: "#0A0A0A",
+                    <Grid item xs={12} sm={6} md={6} lg={6}>
+                        <Box sx={{width: "100%", height: "100%"}}>
+
+                            <video
+                                style={{
+                                    aspectRatio: "1/1",
+                                    borderRadius: 5,
+                                    width: "100%",
+                                    height: "100%",
+                                    maxHeight: "100%",
+                                    maxWidth: "100%",
+                                    backgroundColor: "#0A0A0A",
 
 
-                            }}
-                            id="remoteVideo"
-                            autoPlay
-                            playsInline
-                            ref={remoteVideo}
-                        ></video>
+                                }}
+                                id="remoteVideo"
+                                autoPlay
+                                playsInline
+                                ref={remoteVideo}
+                            ></video>
+                        </Box>
 
                     </Grid>
                 </Grid>
@@ -234,10 +239,8 @@ function VideoCallPage() {
                             App
                         </Button>
                     </Grid>
-
                 </Grid>
             </Container>
-
         </Box>
 
 

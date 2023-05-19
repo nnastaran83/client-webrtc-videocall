@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from "react";
-import "../styles/App.css";
 import {Button, Container, IconButton, Snackbar, styled} from "@mui/material";
 import Login from "./Login.jsx";
 import Root from "./Root.jsx";
