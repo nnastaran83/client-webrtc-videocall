@@ -1,22 +1,47 @@
 import React from "react";
 import DropdownMenu from "./DropdownMenu.jsx";
-import {Box, Button, Container, Grid, styled} from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
 import {useEffect, useRef, useState} from "react";
 import {db} from "../firebase";
 import "../styles/VideoCallPage.css";
-import Root from "./Root.jsx";
 
 import {
     collection,
     doc,
-    setDoc,
     onSnapshot,
     getDoc,
     updateDoc,
     addDoc,
 } from "firebase/firestore";
-import {store} from "../store/index.js";
 import {useSelector} from "react-redux";
+import {styled} from "@mui/material";
+
+const VideoContainer = styled(Box)(({theme}) => ({
+    width: "100%",
+    textAlign: "center",
+
+    [theme.breakpoints.up('md')]: {
+        height: "100%",
+        maxHeight: "100%",
+    },
+    [theme.breakpoints.down('md')]: {
+        height: "49vh",
+        maxHeight: "49vh",
+    },
+}));
+
+const VideoItem = styled(Box)(({theme}) => ({
+    objectFit: "cover",
+    borderRadius: 5,
+    width: "100%",
+    height: "100vh",
+    maxHeight: "100%",
+    maxWidth: "100%",
+    backgroundColor: "#0A0A0A",
+}));
 
 /**
  * Video Calling Page using WebRTC
@@ -24,18 +49,12 @@ import {useSelector} from "react-redux";
  * @constructor
  */
 function VideoCallPage() {
-    const webcamButton = useRef(null);
     const webcamVideo = useRef(null);
-    const callButton = useRef(null);
-    const callInput = useRef(null);
     const answerButton = useRef(null);
     const remoteVideo = useRef(null);
     const hangupButton = useRef(null);
-    const [callButtonIsEnabled, setCallButtonIsEnabled] = useState(false);
     const [answerButtonIsEnabled, setAnswerButtonIsEnabled] = useState(false);
-    const [webcamButtonIsEnabled, setWebcamButtonIsEnabled] = useState(true);
     const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
-    const [callInputValue, setCallInputValue] = useState("");
     const currentUser = useSelector((state) => state.login.user);
 
     let localStream = null;
@@ -154,94 +173,81 @@ function VideoCallPage() {
             justifyContent: "center",
             alignItems: "center",
             position: "relative",
-            top: "0px",
+            top: 0,
             right: "0px",
-            bottom: "0px",
-            left: "0px"
+            bottom: 0,
+            left: "0px",
         }}>
-            <Container>
-                <Box sx={{position: "fixed", top: 0, right: 0}}>
-                    <DropdownMenu/>
-                </Box>
+            <Box sx={{position: "fixed", top: 0, right: 0}}>
+                <DropdownMenu/>
+            </Box>
 
-                <Grid container rowSpacing={1} columnSpacing={1}>
-                    <Grid item xs={12} sm={6} md={6} lg={6} sx={{textAlign: "center"}}>
-                        <Box sx={{width: "100%", height: "100%", maxHeight: "45vh"}}>
+            <Grid container rowSpacing={1} columnSpacing={1} sx={{
+                height: "100%",
+                maxHeight: "100%",
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
 
-                            <video
-                                style={{
-                                    objectFit: "cover",
-                                    borderRadius: 5,
-                                    width: "100%",
-                                    height: "100%",
-                                    maxHeight: "100%",
-                                    maxWidth: "100%",
-                                    backgroundColor: "#0A0A0A",
-                                    transform: "scale(-1, 1)",
-
-                                }}
-                                id="webcamVideo"
-                                autoPlay
-                                playsInline
-                                ref={webcamVideo}
-                            ></video>
-                        </Box>
-
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={6} sx={{textAlign: "center"}}>
-                        <Box sx={{width: "100%", height: "100%", maxHeight: "45vh"}}>
-
-                            <video
-                                style={{
-                                    objectFit: "cover",
-                                    borderRadius: 5,
-                                    width: "100%",
-                                    height: "100%",
-                                    maxHeight: "100%",
-                                    maxWidth: "100%",
-                                    backgroundColor: "#0A0A0A",
-
-
-                                }}
-                                id="remoteVideo"
-                                autoPlay
-                                playsInline
-                                ref={remoteVideo}
-                            ></video>
-                        </Box>
-
-                    </Grid>
-                </Grid>
-                <Grid container
-                      sx={{position: "sticky", bottom: 0, paddingBottom: "1rem", paddingTop: "1rem"}}>
-                    <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
-
-                        <Button
-                            id="answerButton"
-                            onClick={handleAnswerButtonClick}
-                            disabled={!answerButtonIsEnabled}
-                            ref={answerButton}
-                            style={{
-                                backgroundColor: `#00DE00`,
-                            }} variant="contained">JOIN</Button>
-
-                    </Grid>
-                    <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
-                        <Button
-                            id="hangupButton"
-                            ref={hangupButton}
-                            disabled={!hangupButtonIsEnabled}
-                            style={{
-                                backgroundColor: `#FF0000`,
-                            }}
-                            variant="contained"
-                        >
-                            X
-                        </Button>
-                    </Grid>
+            }}>
+                <Grid item xs={12} sm={12} md={6} lg={6} sx={{textAlign: "center"}}>
+                    <VideoContainer>
+                        <VideoItem component={"video"}
+                                   sx={{
+                                       transform: "scale(-1, 1)",
+                                   }}
+                                   id="webcamVideo"
+                                   autoPlay
+                                   playsInline
+                                   ref={webcamVideo}
+                        ></VideoItem>
+                    </VideoContainer>
 
                 </Grid>
-            </Container>
+                <Grid item xs={12} sm={12} md={6} lg={6} sx={{textAlign: "center"}}>
+                    <VideoContainer>
+                        <VideoItem component={"video"}
+                                   id="remoteVideo"
+                                   autoPlay
+                                   playsInline
+                                   ref={remoteVideo}
+                        ></VideoItem>
+                    </VideoContainer>
+
+                </Grid>
+            </Grid>
+
+            <Grid container
+                  sx={{position: "absolute", bottom: 0, paddingBottom: "1rem", paddingTop: "1rem"}}>
+                <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
+
+                    <Button
+                        id="answerButton"
+                        onClick={handleAnswerButtonClick}
+                        disabled={!answerButtonIsEnabled}
+                        ref={answerButton}
+                        style={{
+                            backgroundColor: `#00DE00`,
+                        }} variant="contained">JOIN</Button>
+
+                </Grid>
+                <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
+                    <Button
+                        id="hangupButton"
+                        ref={hangupButton}
+                        disabled={!hangupButtonIsEnabled}
+                        style={{
+                            backgroundColor: `#FF0000`,
+                        }}
+                        variant="contained"
+                    >
+                        X
+                    </Button>
+                </Grid>
+
+            </Grid>
         </Box>
 
 
