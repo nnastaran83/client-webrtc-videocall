@@ -46,7 +46,7 @@ const Login = () => {
         dispatch(setUserName(fullNameRef.current.value));
         dispatch(signInUser({email: emailRef.current.value, password: password}));
         getMessagingToken();
-        console.log(store.getState());
+
     };
 
     return (

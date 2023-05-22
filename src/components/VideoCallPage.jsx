@@ -7,6 +7,7 @@ import Grid from "@mui/material/Grid";
 import {useEffect, useRef, useState} from "react";
 import {db} from "../firebase";
 import "../styles/VideoCallPage.css";
+import {store} from "../store";
 
 import {
     collection,
@@ -57,8 +58,10 @@ function VideoCallPage() {
     const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
     const currentUser = useSelector((state) => state.login.user);
 
+
     let localStream = null;
     let remoteStream = null;
+
 
     // server config
     const servers = {
@@ -75,10 +78,24 @@ function VideoCallPage() {
 
     const [pc, setPc] = useState(new RTCPeerConnection(servers));
 
+
     useEffect(() => {
-        console.log("Peer Connection Created");
         startWebCam();
+
+        //Stop webcam when user leaves the page
+        return () => {
+            stopWebCam();
+        }
     }, []);
+
+    /**
+     * Handles the click event of the hangup button
+     */
+    const stopWebCam = () => {
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+        }
+    }
 
     /**
      * Handles the click event of the webcam button
@@ -86,7 +103,6 @@ function VideoCallPage() {
      */
     const startWebCam = async () => {
         // setting local stream to the video from our camera
-
         localStream = await navigator.mediaDevices.getUserMedia({
             video: true,
             audio: true,
@@ -172,15 +188,8 @@ function VideoCallPage() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            position: "relative",
-            top: 0,
-            right: "0px",
-            bottom: 0,
-            left: "0px",
         }}>
-            <Box sx={{position: "fixed", top: 0, right: 0}}>
-                <DropdownMenu/>
-            </Box>
+
 
             <Grid container rowSpacing={1} columnSpacing={1} sx={{
                 height: "100%",
@@ -248,6 +257,10 @@ function VideoCallPage() {
                 </Grid>
 
             </Grid>
+
+            <Box sx={{position: "fixed", top: 0, right: 0}}>
+                <DropdownMenu/>
+            </Box>
         </Box>
 
 

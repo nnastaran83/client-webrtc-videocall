@@ -35,6 +35,7 @@ function DropdownMenu() {
                 aria-expanded={open ? "true" : undefined}
                 variant="contained"
                 onClick={handleClick}
+                style={{color: "#ffffff"}}
             >
                 <MoreVertIcon/>
             </IconButton>

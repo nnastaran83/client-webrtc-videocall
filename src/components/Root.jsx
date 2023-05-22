@@ -6,7 +6,7 @@ import {styled} from "@mui/material";
  */
 const Root = styled('div')(({theme}) => ({
     [theme.breakpoints.down('md')]: {
-        padding: "0.1rem",
+        padding: "1rem",
     },
     [theme.breakpoints.up('md')]: {
         padding: "2rem",

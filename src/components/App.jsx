@@ -5,7 +5,7 @@ import Root from "./Root.jsx";
 import VideoCallPage from "./VideoCallPage.jsx";
 import {auth, onMessageListener} from "../firebase";
 import {onAuthStateChanged} from "firebase/auth";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {setEmail, setUser, store, setMessage} from "../store";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -20,6 +20,10 @@ function App() {
     const [notification, setNotification] = useState({title: "", body: ""});
     const [isTokenFound, setTokenFound] = useState(false);
     const dispatch = useDispatch();
+    const email = useSelector((state) => state.login.email);
+    const currentUrl = window.location.href;
+    const url = new URL(currentUrl);
+
 
     const handleClose = (event, reason) => {
         if (reason === "clickaway") {
@@ -50,7 +54,7 @@ function App() {
                 title: payload.notification.title,
                 body: payload.notification.body,
             });
-            console.log("mimim", payload);
+
         })
         .catch((err) => console.log("failed: ", err));
 
@@ -60,9 +64,12 @@ function App() {
                 dispatch(setEmail(user.email));
                 userToJson(user).then((currentUser) => {
                     dispatch(setUser(currentUser));
+                  
                 });
 
                 setPage(<VideoCallPage/>);
+
+
             } else {
                 setPage(<Login/>);
             }
