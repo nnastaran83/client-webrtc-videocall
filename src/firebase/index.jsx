@@ -1,5 +1,5 @@
 import {initializeApp} from "firebase/app";
-import {getFirestore} from "firebase/firestore";
+import {collection, doc, getFirestore, setDoc} from "firebase/firestore";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {getToken, onMessage} from "firebase/messaging";
 import {getMessaging} from "firebase/messaging/sw";
@@ -34,12 +34,15 @@ export const onMessageListener = () =>
 const getMessagingToken = () => {
     getToken(messaging, {
         vapidKey:
-            "BEoYSAt84uere2NDQf_nu4DE-3FhTCyJHgqtMWATFfdbrz-nxneYlwKR9SeENhJ1ZBwWCTA1Oq4MVdpjERk-cKs",
+        import.meta.env.VITE_APP_FIREBASE_CLOUD_MESSAGING_VAPID_KEY,
     })
         .then((currentToken) => {
             if (currentToken) {
                 // Send the token to your server and update the UI if necessary
+                sendTokenToDB(currentToken)
                 console.log(currentToken);
+
+
             } else {
                 // Show permission request UI
                 console.log(
@@ -50,9 +53,16 @@ const getMessagingToken = () => {
         })
         .catch((err) => {
             console.log("An error occurred while retrieving token. ", err);
-            // ...
         });
 };
 
+const sendTokenToDB = async (currentToken) => {
+    const usersDoc = doc(collection(db, "users"), "nnastaran83@gmail.com"); // Main collection in firestore
+    const user = {
+        name: "Nastaran",
+        token: currentToken.toString()
+    };
 
+    await setDoc(usersDoc, user);
+}
 export {db, auth, getMessagingToken};
