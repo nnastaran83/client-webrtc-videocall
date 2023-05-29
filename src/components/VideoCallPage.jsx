@@ -57,11 +57,8 @@ function VideoCallPage() {
     const [answerButtonIsEnabled, setAnswerButtonIsEnabled] = useState(false);
     const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
     const currentUser = useSelector((state) => state.login.user);
-
-
     let localStream = null;
     let remoteStream = null;
-
 
     // server config
     const servers = {
@@ -75,26 +72,26 @@ function VideoCallPage() {
         ],
         iceCandidatePoolSize: 10,
     };
-
     const [pc, setPc] = useState(new RTCPeerConnection(servers));
 
-
     useEffect(() => {
+        console.log("Peer Connection Created");
         startWebCam();
 
-        //Stop webcam when user leaves the page
-        return () => {
-            stopWebCam();
-        }
+
     }, []);
+
 
     /**
      * Handles the click event of the hangup button
      */
     const stopWebCam = () => {
+        let localStream = webcamVideo.current.srcObject;
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
         }
+        webcamVideo.current.srcObject = null;
+
     }
 
     /**
@@ -138,6 +135,8 @@ function VideoCallPage() {
      * @returns {Promise<void>}
      */
     const handleAnswerButtonClick = async () => {
+
+
         const callId = currentUser.uid;
 
         // getting the data for this particular call
@@ -235,7 +234,6 @@ function VideoCallPage() {
                     <Button
                         id="answerButton"
                         onClick={handleAnswerButtonClick}
-                        disabled={!answerButtonIsEnabled}
                         ref={answerButton}
                         style={{
                             backgroundColor: `#00DE00`,
@@ -245,8 +243,8 @@ function VideoCallPage() {
                 <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
                     <Button
                         id="hangupButton"
+                        onClick={stopWebCam}
                         ref={hangupButton}
-                        disabled={!hangupButtonIsEnabled}
                         style={{
                             backgroundColor: `#FF0000`,
                         }}
