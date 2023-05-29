@@ -78,7 +78,6 @@ function VideoCallPage() {
         console.log("Peer Connection Created");
         startWebCam();
 
-
     }, []);
 
 
@@ -135,6 +134,7 @@ function VideoCallPage() {
      * @returns {Promise<void>}
      */
     const handleAnswerButtonClick = async () => {
+        startWebCam();
 
 
         const callId = currentUser.uid;
@@ -257,7 +257,7 @@ function VideoCallPage() {
             </Grid>
 
             <Box sx={{position: "fixed", top: 0, right: 0}}>
-                <DropdownMenu/>
+                <DropdownMenu handlePreSignOut={stopWebCam}/>
             </Box>
         </Box>
 

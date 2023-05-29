@@ -12,7 +12,7 @@ import {auth} from "../firebase/index.jsx";
  * @returns {JSX.Element}
  * @constructor
  */
-function DropdownMenu() {
+function DropdownMenu({handlePreSignOut}) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -23,6 +23,7 @@ function DropdownMenu() {
     };
     const handleSignOut = (event) => {
         setAnchorEl(null);
+        handlePreSignOut();
         signOut(auth);
     };
 
