@@ -8,13 +8,13 @@ importScripts(
 
 // Initialize the Firebase app in the service worker by passing the generated config
 const firebaseConfig = {
-    apiKey: "AIzaSyBWLr7DrODHLbB2Zvb5o6ANvBAws0MH8_8",
-    authDomain: "smart-4e774.firebaseapp.com",
-    projectId: "smart-4e774",
-    storageBucket: "smart-4e774.appspot.com",
-    messagingSenderId: "267084890357",
-    appId: "1:267084890357:web:73c058772bfe998b4f45bc",
-    measurementId: "G-XLLC8D755N",
+    apiKey: "AIzaSyAQ5zZXG0NS864OeXcRWib0zWzMFIxoaVs",
+    authDomain: "smartpro-e44ec.firebaseapp.com",
+    projectId: "smartpro-e44ec",
+    storageBucket: "smartpro-e44ec.appspot.com",
+    messagingSenderId: "992154298820",
+    appId: "1:992154298820:web:0eb08f07044ac8d3719c91",
+    measurementId: "G-DMSN2VRVZ8"
 };
 const app = firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
