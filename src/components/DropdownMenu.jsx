@@ -1,33 +1,38 @@
-import React from "react";
+import React, {Fragment, useState} from "react";
 import StyledMenu from "./StyledMenu.jsx";
 import MenuItem from "@mui/material/MenuItem";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LogoutIcon from "@mui/icons-material/Logout";
-import {Button, IconButton} from "@mui/material";
+import {IconButton} from "@mui/material";
 import {signOut} from "firebase/auth";
 import {auth} from "../firebase/index.jsx";
 
 /**
- * Customized styled menu component
+ * Dropdown Menu component
+ * @param handlePreSignOut
  * @returns {JSX.Element}
  * @constructor
  */
-function DropdownMenu() {
-    const [anchorEl, setAnchorEl] = React.useState(null);
+function DropdownMenu({handlePreSignOut}) {
+    const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const handleSignOut = (event) => {
+
+    const handleSignOut = async (event) => {
         setAnchorEl(null);
-        signOut(auth);
+        handlePreSignOut();
+        await signOut(auth);
     };
 
     return (
-        <div>
+        <Fragment>
             <IconButton
                 id="demo-customized-button"
                 aria-controls={open ? "demo-customized-menu" : undefined}
@@ -53,7 +58,7 @@ function DropdownMenu() {
                     Log out
                 </MenuItem>
             </StyledMenu>
-        </div>
+        </Fragment>
     );
 }
 

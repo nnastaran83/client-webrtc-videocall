@@ -1,19 +1,17 @@
-import React, {useEffect, useRef, useState} from "react";
-import {Box, Button, Grid, TextField, ThemeProvider} from "@mui/material";
+import React, {Fragment, useRef, useState} from "react";
+import {Box, Grid, TextField} from "@mui/material";
 import Logo from "../assets/circular_logo.svg";
-import CustomButton from "./themed_components/CustomButton.jsx";
 import {useDispatch, useSelector} from "react-redux";
 import {
     changePasswordVisibility,
-    setEmail,
     setPassword,
     setUserName,
     signInUser,
     store,
 } from "../store";
 import PasswordInput from "./PasswordInput.jsx";
+import BlueButton from "./buttons/BlueButton.jsx";
 import {getMessagingToken} from "../firebase/index.jsx";
-import {blue} from "@mui/material/colors";
 
 /**
  * Login Page
@@ -31,6 +29,7 @@ const Login = () => {
     const handlePasswordInputChange = (event) => {
         dispatch(setPassword(event.target.value));
     };
+
 
     const handleClickShowPassword = () => {
         //dispatch the action to the store
@@ -50,7 +49,7 @@ const Login = () => {
     };
 
     return (
-        <Box>
+        <Fragment>
             {/*Welcome top bar*/}
             <Grid container rowSpacing={1}>
                 <Grid item xs={6} sm={6} md={6} lg={6}>
@@ -114,15 +113,15 @@ const Login = () => {
 
                 {/*Sign in button*/}
 
-                <CustomButton
+                <BlueButton
                     variant="contained"
                     style={{width: "100%", marginTop: "2rem"}}
                     type={"submit"}
                 >
                     Sign in
-                </CustomButton>
+                </BlueButton>
             </Box>
-        </Box>
+        </Fragment>
     );
 };
 

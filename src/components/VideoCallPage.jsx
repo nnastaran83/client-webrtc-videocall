@@ -2,7 +2,6 @@ import React from "react";
 import DropdownMenu from "./DropdownMenu.jsx";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import {useEffect, useRef, useState} from "react";
 import {db} from "../firebase";
@@ -57,11 +56,8 @@ function VideoCallPage() {
     const [answerButtonIsEnabled, setAnswerButtonIsEnabled] = useState(false);
     const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
     const currentUser = useSelector((state) => state.login.user);
-
-
     let localStream = null;
     let remoteStream = null;
-
 
     // server config
     const servers = {
@@ -75,26 +71,25 @@ function VideoCallPage() {
         ],
         iceCandidatePoolSize: 10,
     };
-
     const [pc, setPc] = useState(new RTCPeerConnection(servers));
 
-
     useEffect(() => {
+        console.log("Peer Connection Created");
         startWebCam();
 
-        //Stop webcam when user leaves the page
-        return () => {
-            stopWebCam();
-        }
     }, []);
 
+
     /**
-     * Handles the click event of the hangup button
+     * Stops the webcam
      */
     const stopWebCam = () => {
+        let localStream = webcamVideo.current.srcObject;
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
         }
+        webcamVideo.current.srcObject = null;
+
     }
 
     /**
@@ -116,7 +111,7 @@ function VideoCallPage() {
         // displaying the video data from the stream to the webpage
         webcamVideo.current.srcObject = localStream;
 
-        // initalizing the remote server to the mediastream
+        // initializing the remote server to the media stream
         remoteStream = new MediaStream();
 
         remoteVideo.current.srcObject = remoteStream;
@@ -138,45 +133,49 @@ function VideoCallPage() {
      * @returns {Promise<void>}
      */
     const handleAnswerButtonClick = async () => {
-        const callId = currentUser.uid;
 
-        // getting the data for this particular call
-        const callDoc = doc(collection(db, "calls"), callId);
-        const answerCandidates = collection(callDoc, "answerCandidates");
-        const offerCandidates = collection(callDoc, "offerCandidates");
 
-        // here we listen to the changes and add it to the answerCandidates
-        pc.onicecandidate = (event) => {
-            event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
-        };
+       const callId = currentUser.uid;
 
-        const callData = (await getDoc(callDoc)).data();
+       // getting the data for this particular call
+       const callDoc = doc(collection(db, "calls"), callId);
+       const answerCandidates = collection(callDoc, "answerCandidates");
+       const offerCandidates = collection(callDoc, "offerCandidates");
 
-        // setting the remote video with offerDescription
+       // here we listen to the changes and add it to the answerCandidates
+       pc.onicecandidate = (event) => {
+           event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
+       };
+
+       const callData = (await getDoc(callDoc)).data();
+
+      //Extract the offer from the caller.
         const offerDescription = callData.offer;
-        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+        //Creat a RTCSessionDescription and set it as the remote description.
+      await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
-        // setting the local video as the answer
-        const answerDescription = await pc.createAnswer();
-        await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
+       // Create the answer
+       const answerDescription = await pc.createAnswer();
 
-        // answer config
-        const answer = {
-            type: answerDescription.type,
-            sdp: answerDescription.sdp,
-        };
+       //Set the answeras the local description, and update the database.
+       await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
+       // answer config
+       const answer = {
+           type: answerDescription.type,
+           sdp: answerDescription.sdp,
+       };
 
-        await updateDoc(callDoc, {answer});
+      await updateDoc(callDoc, {answer});
 
-        onSnapshot(offerCandidates, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === "added") {
-                    let data = change.doc.data();
-                    pc.addIceCandidate(new RTCIceCandidate(data));
-                }
-            });
-        });
-        setHangupButtonIsEnabled(true);
+       onSnapshot(offerCandidates, (snapshot) => {
+           snapshot.docChanges().forEach((change) => {
+               if (change.type === "added") {
+                   let candidate = new RTCIceCandidate(change.doc.data());
+                   pc.addIceCandidate(candidate);
+               }
+           });
+       });
+       setHangupButtonIsEnabled(true);
     };
 
     return (
@@ -235,7 +234,6 @@ function VideoCallPage() {
                     <Button
                         id="answerButton"
                         onClick={handleAnswerButtonClick}
-                        disabled={!answerButtonIsEnabled}
                         ref={answerButton}
                         style={{
                             backgroundColor: `#00DE00`,
@@ -245,8 +243,8 @@ function VideoCallPage() {
                 <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
                     <Button
                         id="hangupButton"
+                        onClick={stopWebCam}
                         ref={hangupButton}
-                        disabled={!hangupButtonIsEnabled}
                         style={{
                             backgroundColor: `#FF0000`,
                         }}
@@ -259,7 +257,7 @@ function VideoCallPage() {
             </Grid>
 
             <Box sx={{position: "fixed", top: 0, right: 0}}>
-                <DropdownMenu/>
+                <DropdownMenu handlePreSignOut={stopWebCam}/>
             </Box>
         </Box>
 

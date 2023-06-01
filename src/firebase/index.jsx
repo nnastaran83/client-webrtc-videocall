@@ -1,6 +1,6 @@
 import {initializeApp} from "firebase/app";
 import {collection, doc, getFirestore, setDoc} from "firebase/firestore";
-import {getAuth, onAuthStateChanged} from "firebase/auth";
+import {getAuth} from "firebase/auth";
 import {getToken, onMessage} from "firebase/messaging";
 import {getMessaging} from "firebase/messaging/sw";
 

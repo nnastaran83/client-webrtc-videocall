@@ -1,13 +1,15 @@
 import React, {useState, useEffect} from "react";
-import {Button, Container, IconButton, Snackbar, styled} from "@mui/material";
-import Login from "./Login.jsx";
-import Root from "./Root.jsx";
-import VideoCallPage from "./VideoCallPage.jsx";
-import {auth, onMessageListener} from "../firebase";
+import {Fragment} from "react";
+import {Button, Container, IconButton, Snackbar} from "@mui/material";
+import {auth, onMessageListener} from "./firebase/index.jsx";
 import {onAuthStateChanged} from "firebase/auth";
 import {useDispatch, useSelector} from "react-redux";
-import {setEmail, setUser, store, setMessage} from "../store";
+import {setEmail, setUser} from "./store/index.js";
 import CloseIcon from "@mui/icons-material/Close";
+import Login from "./components/Login.jsx";
+import Frame from "./components/Frame.jsx";
+import VideoCallPage from "./components/VideoCallPage.jsx";
+
 
 /**
  * App Container
@@ -24,6 +26,24 @@ function App() {
     const currentUrl = window.location.href;
     const url = new URL(currentUrl);
 
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                dispatch(setEmail(user.email));
+                userToJson(user).then((currentUser) => {
+                    dispatch(setUser(currentUser));
+
+                });
+
+                setPage(<VideoCallPage/>);
+
+
+            } else {
+                setPage(<Login/>);
+            }
+        });
+    }, []);
+
 
     const handleClose = (event, reason) => {
         if (reason === "clickaway") {
@@ -32,8 +52,9 @@ function App() {
 
         setShow(false);
     };
+
     const action = (
-        <React.Fragment>
+        <Fragment>
             <Button color="secondary" size="small" onClick={handleClose}>
                 UNDO
             </Button>
@@ -45,7 +66,7 @@ function App() {
             >
                 <CloseIcon fontSize="small"/>
             </IconButton>
-        </React.Fragment>
+        </Fragment>
     );
     onMessageListener()
         .then((payload) => {
@@ -58,23 +79,6 @@ function App() {
         })
         .catch((err) => console.log("failed: ", err));
 
-    useEffect(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                dispatch(setEmail(user.email));
-                userToJson(user).then((currentUser) => {
-                    dispatch(setUser(currentUser));
-                  
-                });
-
-                setPage(<VideoCallPage/>);
-
-
-            } else {
-                setPage(<Login/>);
-            }
-        });
-    }, []);
 
     const userToJson = async (user) => {
         user = await user.toJSON();
@@ -82,7 +86,7 @@ function App() {
     };
 
     return (
-        <Root style={{height: "100%"}}>
+        <Frame style={{height: "100%"}}>
             <Snackbar
                 open={show}
                 autoHideDuration={6000}
@@ -93,7 +97,7 @@ function App() {
             <Container sx={{height: "100%"}}>
                 {page}
             </Container>
-        </Root>
+        </Frame>
     );
 }
 

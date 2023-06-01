@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./components/App.jsx";
-import "./styles/index.css";
+import App from "./App.jsx";
 import {Provider} from "react-redux";
 import {store} from "./store";
+import "./styles/index.css";
+
 
 if ("serviceWorker" in window.navigator) {
     window.navigator.serviceWorker
@@ -25,10 +26,7 @@ self.addEventListener("install", (event) => {
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
         <Provider store={store}>
-
             <App/>
-
-
         </Provider>
     </React.StrictMode>
 );
