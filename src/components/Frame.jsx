@@ -4,7 +4,7 @@ import {styled} from "@mui/material";
  * Styled root component.
  * Changes the padding respectively to the screen size.
  */
-const Root = styled('div')(({theme}) => ({
+const Frame = styled('div')(({theme}) => ({
     [theme.breakpoints.down('md')]: {
         padding: "1rem",
     },
@@ -15,4 +15,4 @@ const Root = styled('div')(({theme}) => ({
 }));
 
 
-export default Root;
+export default Frame;

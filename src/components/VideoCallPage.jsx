@@ -2,7 +2,6 @@ import React from "react";
 import DropdownMenu from "./DropdownMenu.jsx";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import {useEffect, useRef, useState} from "react";
 import {db} from "../firebase";
@@ -82,7 +81,7 @@ function VideoCallPage() {
 
 
     /**
-     * Handles the click event of the hangup button
+     * Stops the webcam
      */
     const stopWebCam = () => {
         let localStream = webcamVideo.current.srcObject;
@@ -112,7 +111,7 @@ function VideoCallPage() {
         // displaying the video data from the stream to the webpage
         webcamVideo.current.srcObject = localStream;
 
-        // initalizing the remote server to the mediastream
+        // initializing the remote server to the media stream
         remoteStream = new MediaStream();
 
         remoteVideo.current.srcObject = remoteStream;
@@ -134,7 +133,6 @@ function VideoCallPage() {
      * @returns {Promise<void>}
      */
     const handleAnswerButtonClick = async () => {
-        startWebCam();
 
 
         const callId = currentUser.uid;
