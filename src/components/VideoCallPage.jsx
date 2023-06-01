@@ -135,45 +135,47 @@ function VideoCallPage() {
     const handleAnswerButtonClick = async () => {
 
 
-        const callId = currentUser.uid;
+       const callId = currentUser.uid;
 
-        // getting the data for this particular call
-        const callDoc = doc(collection(db, "calls"), callId);
-        const answerCandidates = collection(callDoc, "answerCandidates");
-        const offerCandidates = collection(callDoc, "offerCandidates");
+       // getting the data for this particular call
+       const callDoc = doc(collection(db, "calls"), callId);
+       const answerCandidates = collection(callDoc, "answerCandidates");
+       const offerCandidates = collection(callDoc, "offerCandidates");
 
-        // here we listen to the changes and add it to the answerCandidates
-        pc.onicecandidate = (event) => {
-            event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
-        };
+       // here we listen to the changes and add it to the answerCandidates
+       pc.onicecandidate = (event) => {
+           event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
+       };
 
-        const callData = (await getDoc(callDoc)).data();
+       const callData = (await getDoc(callDoc)).data();
 
-        // setting the remote video with offerDescription
+      //Extract the offer from the caller.
         const offerDescription = callData.offer;
-        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+        //Creat a RTCSessionDescription and set it as the remote description.
+      await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
-        // setting the local video as the answer
-        const answerDescription = await pc.createAnswer();
-        await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
+       // Create the answer
+       const answerDescription = await pc.createAnswer();
 
-        // answer config
-        const answer = {
-            type: answerDescription.type,
-            sdp: answerDescription.sdp,
-        };
+       //Set the answeras the local description, and update the database.
+       await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
+       // answer config
+       const answer = {
+           type: answerDescription.type,
+           sdp: answerDescription.sdp,
+       };
 
-        await updateDoc(callDoc, {answer});
+      await updateDoc(callDoc, {answer});
 
-        onSnapshot(offerCandidates, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === "added") {
-                    let data = change.doc.data();
-                    pc.addIceCandidate(new RTCIceCandidate(data));
-                }
-            });
-        });
-        setHangupButtonIsEnabled(true);
+       onSnapshot(offerCandidates, (snapshot) => {
+           snapshot.docChanges().forEach((change) => {
+               if (change.type === "added") {
+                   let candidate = new RTCIceCandidate(change.doc.data());
+                   pc.addIceCandidate(candidate);
+               }
+           });
+       });
+       setHangupButtonIsEnabled(true);
     };
 
     return (
