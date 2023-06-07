@@ -1,7 +1,7 @@
 import {styled} from "@mui/material";
 
 /**
- * Styled root component.
+ * Styled Frame component.
  * Changes the padding respectively to the screen size.
  */
 const Frame = styled('div')(({theme}) => ({
