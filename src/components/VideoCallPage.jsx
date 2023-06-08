@@ -3,9 +3,11 @@ import DropdownMenu from "./DropdownMenu.jsx";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
 import {useEffect, useRef, useState} from "react";
-import {db} from "../firebase";
+import {auth, db} from "../firebase";
 import "../styles/VideoCallPage.css";
+import JoinButton from "./buttons/JoinButton.jsx";
 import {store} from "../store";
 
 import {
@@ -18,6 +20,7 @@ import {
 } from "firebase/firestore";
 import {useSelector} from "react-redux";
 import {styled} from "@mui/material";
+import {signOut} from "firebase/auth";
 
 const VideoContainer = styled(Box)(({theme}) => ({
     width: "100%",
@@ -55,6 +58,9 @@ function VideoCallPage() {
     const hangupButton = useRef(null);
     const [answerButtonIsEnabled, setAnswerButtonIsEnabled] = useState(false);
     const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
+    const [joinedCall, setJoinedCall] = useState(false);
+
+
     const currentUser = useSelector((state) => state.login.user);
     let localStream = null;
     let remoteStream = null;
@@ -83,12 +89,14 @@ function VideoCallPage() {
     /**
      * Stops the webcam
      */
-    const stopWebCam = () => {
+    const stopWebCam = async () => {
         let localStream = webcamVideo.current.srcObject;
+        console.log(localStream)
         if (localStream) {
             localStream.getTracks().forEach(track => track.stop());
         }
         webcamVideo.current.srcObject = null;
+        setJoinedCall(false)
 
     }
 
@@ -133,49 +141,46 @@ function VideoCallPage() {
      * @returns {Promise<void>}
      */
     const handleAnswerButtonClick = async () => {
+        const callId = currentUser.uid;
+        // getting the data for this particular call
+        const callDoc = doc(collection(db, "calls"), callId);
+        const answerCandidates = collection(callDoc, "answerCandidates");
+        const offerCandidates = collection(callDoc, "offerCandidates");
 
+        // here we listen to the changes and add it to the answerCandidates
+        pc.onicecandidate = (event) => {
+            event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
+        };
 
-       const callId = currentUser.uid;
+        const callData = (await getDoc(callDoc)).data();
 
-       // getting the data for this particular call
-       const callDoc = doc(collection(db, "calls"), callId);
-       const answerCandidates = collection(callDoc, "answerCandidates");
-       const offerCandidates = collection(callDoc, "offerCandidates");
-
-       // here we listen to the changes and add it to the answerCandidates
-       pc.onicecandidate = (event) => {
-           event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
-       };
-
-       const callData = (await getDoc(callDoc)).data();
-
-      //Extract the offer from the caller.
+        //Extract the offer from the caller.
         const offerDescription = callData.offer;
         //Creat a RTCSessionDescription and set it as the remote description.
-      await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
-       // Create the answer
-       const answerDescription = await pc.createAnswer();
+        // Create the answer
+        const answerDescription = await pc.createAnswer();
 
-       //Set the answeras the local description, and update the database.
-       await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
-       // answer config
-       const answer = {
-           type: answerDescription.type,
-           sdp: answerDescription.sdp,
-       };
+        //Set the answeras the local description, and update the database.
+        await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
+        // answer config
+        const answer = {
+            type: answerDescription.type,
+            sdp: answerDescription.sdp,
+        };
 
-      await updateDoc(callDoc, {answer});
+        await updateDoc(callDoc, {answer});
 
-       onSnapshot(offerCandidates, (snapshot) => {
-           snapshot.docChanges().forEach((change) => {
-               if (change.type === "added") {
-                   let candidate = new RTCIceCandidate(change.doc.data());
-                   pc.addIceCandidate(candidate);
-               }
-           });
-       });
-       setHangupButtonIsEnabled(true);
+        onSnapshot(offerCandidates, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    let candidate = new RTCIceCandidate(change.doc.data());
+                    pc.addIceCandidate(candidate);
+                }
+            });
+        });
+        setJoinedCall(true);
     };
 
     return (
@@ -227,34 +232,27 @@ function VideoCallPage() {
                 </Grid>
             </Grid>
 
-            <Grid container
-                  sx={{position: "absolute", bottom: 0, paddingBottom: "1rem", paddingTop: "1rem"}}>
-                <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
+            <Stack spacing={3}
+                   sx={{position: "absolute", bottom: 0, right: 0, padding: "1rem"}}>
 
-                    <Button
-                        id="answerButton"
-                        onClick={handleAnswerButtonClick}
-                        ref={answerButton}
-                        style={{
-                            backgroundColor: `#00DE00`,
-                        }} variant="contained">JOIN</Button>
+                <Button
+                    id="answerButton"
+                    onClick={handleAnswerButtonClick}
+                    ref={answerButton}
+                    style={{
+                        backgroundColor: `#00DE00`,
+                    }} variant="contained">JOIN</Button>
 
-                </Grid>
-                <Grid item xs={6} md={6} lg={6} sx={{textAlign: "center"}}>
-                    <Button
-                        id="hangupButton"
-                        onClick={stopWebCam}
-                        ref={hangupButton}
-                        style={{
-                            backgroundColor: `#FF0000`,
-                        }}
-                        variant="contained"
-                    >
-                        X
-                    </Button>
-                </Grid>
+                <JoinButton
+                    id="hangupButton"
+                    bgcolor={joinedCall ? "#FF0000" : "#00FF00"}
+                    hovercolor={joinedCall ? "#930000" : "#009900"}
+                    onClick={joinedCall ? stopWebCam : handleAnswerButtonClick}
+                    ref={hangupButton}
+                    variant="contained"
+                >{joinedCall ? "X" : "JOIN"}</JoinButton>
+            </Stack>
 
-            </Grid>
 
             <Box sx={{position: "fixed", top: 0, right: 0}}>
                 <DropdownMenu handlePreSignOut={stopWebCam}/>

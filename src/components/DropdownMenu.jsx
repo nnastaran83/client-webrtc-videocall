@@ -27,7 +27,7 @@ function DropdownMenu({handlePreSignOut}) {
 
     const handleSignOut = async (event) => {
         setAnchorEl(null);
-        handlePreSignOut();
+        await handlePreSignOut();
         await signOut(auth);
     };
 
