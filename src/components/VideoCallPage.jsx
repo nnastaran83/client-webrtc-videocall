@@ -206,8 +206,8 @@ function VideoCallPage() {
         >
             <Grid
                 container
-                rowSpacing={1}
-                columnSpacing={1}
+                rowSpacing={0.5}
+                columnSpacing={0.5}
                 sx={{
                     height: "100%",
                     maxHeight: "100%",

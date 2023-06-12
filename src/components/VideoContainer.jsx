@@ -10,8 +10,8 @@ const VideoContainer = styled(Box)(({theme}) => ({
         maxHeight: "100%",
     },
     [theme.breakpoints.down("md")]: {
-        height: "49vh",
-        maxHeight: "49vh",
+        height: "50vh",
+        maxHeight: "50vh",
     },
 }));
 
