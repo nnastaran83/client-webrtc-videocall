@@ -1,12 +1,15 @@
 import React from "react";
-import DropdownMenu from "./DropdownMenu.jsx";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Stack from "@mui/material/Stack";
 import {useEffect, useRef, useState} from "react";
+import {useSelector} from "react-redux";
+import {Box, Grid, IconButton, Stack} from "@mui/material";
+import JoinButton from "./buttons/JoinButton.jsx";
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import VideoContainer from "./VideoContainer.jsx";
+import VideoItem from "./VideoItem.jsx";
+import DropdownMenu from "./DropdownMenu.jsx";
 import {db} from "../firebase";
 import "../styles/VideoCallPage.css";
-import JoinButton from "./buttons/JoinButton.jsx";
 
 import {
     collection,
@@ -16,32 +19,7 @@ import {
     updateDoc,
     addDoc,
 } from "firebase/firestore";
-import {useSelector} from "react-redux";
-import {styled} from "@mui/material";
 
-const VideoContainer = styled(Box)(({theme}) => ({
-    width: "100%",
-    textAlign: "center",
-
-    [theme.breakpoints.up("md")]: {
-        height: "100%",
-        maxHeight: "100%",
-    },
-    [theme.breakpoints.down("md")]: {
-        height: "49vh",
-        maxHeight: "49vh",
-    },
-}));
-
-const VideoItem = styled(Box)(({theme}) => ({
-    objectFit: "cover",
-    borderRadius: 5,
-    width: "100%",
-    height: "100vh",
-    maxHeight: "100%",
-    maxWidth: "100%",
-    backgroundColor: "#0A0A0A",
-}));
 
 /**
  * Video Calling Page using WebRTC
@@ -52,11 +30,11 @@ function VideoCallPage() {
     const webcamVideo = useRef(null);
     const remoteVideo = useRef(null);
     const [joinedCall, setJoinedCall] = useState(false);
-
     const currentUser = useSelector((state) => state.login.user);
     let localStream = null;
     let remoteStream = null;
     let candidatesQueue = [];
+
 
     // server config
     const servers = {
@@ -71,6 +49,7 @@ function VideoCallPage() {
         iceCandidatePoolSize: 10,
     };
     const [pc, setPc] = useState(new RTCPeerConnection(servers));
+
 
     useEffect(() => {
         console.log("Peer Connection Created");
@@ -88,6 +67,7 @@ function VideoCallPage() {
         }
         webcamVideo.current.srcObject = null;
     };
+
 
     /**
      * Handles the click event of the webcam button
@@ -120,7 +100,21 @@ function VideoCallPage() {
             });
             remoteVideo.current.srcObject = remoteStream;
         };
+        pc.oniceconnectionstatechange = (e) => {
+            console.log("ICE connection state change: ", pc.iceConnectionState);
+            if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+                // Connection has been established
+                // You can set your state variable here
+
+                setJoinedCall(true);
+            } else if (pc.iceConnectionState === "disconnected" || pc.iceConnectionState === "failed" || pc.iceConnectionState === "closed") {
+                // Connection has been closed/failed
+                // You can reset your state variable here
+                setJoinedCall(false);
+            }
+        };
     };
+
 
     /**
      * Handles the click event of the answer button
@@ -174,8 +168,7 @@ function VideoCallPage() {
                 if (change.type === "added") {
                     let data = change.doc.data();
                     pc.addIceCandidate(new RTCIceCandidate(data));
-                    let candidate = new RTCIceCandidate();
-                    candidatesQueue.push(candidate);
+
                 }
             });
 
@@ -187,8 +180,9 @@ function VideoCallPage() {
                 candidatesQueue = [];
             }
         });
-        setJoinedCall(true);
+        //  setJoinedCall(true);
     };
+
 
     /**
      * Hang up the video call
@@ -255,7 +249,15 @@ function VideoCallPage() {
                 spacing={3}
                 sx={{position: "absolute", bottom: 0, right: 0, padding: "1rem"}}
             >
-                {/*TODO: Add camera on or of button*/}
+
+                <IconButton sx={{color: "#1fe600"}}>
+                    <ThumbUpIcon fontSize="large"/>
+                </IconButton>
+
+                <IconButton sx={{color: "#FF0000"}}>
+                    <ThumbDownIcon fontSize="large"/>
+                </IconButton>
+
                 <JoinButton
                     id="hangupButton"
                     bgcolor={joinedCall ? "#FF0000" : "#00FF00"}
