@@ -12,21 +12,5 @@ const JoinButton = styled(Button)(({theme, bgcolor, hovercolor}) => ({
     },
 }));
 
-const RedGreenButton = () => {
-    const [isGreen, setIsGreen] = useState(false);
-
-    const toggleColor = () => {
-        setIsGreen(!isGreen);
-
-    }
-
-    return (
-        <JoinButton
-            bgcolor={isGreen ? "#00FF00" : "#FF0000"}
-            hovercolor={isGreen ? "#009900" : "#930000"}
-            onClick={toggleColor}
-        />
-    );
-}
 
 export default JoinButton;

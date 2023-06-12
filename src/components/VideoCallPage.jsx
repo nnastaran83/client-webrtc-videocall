@@ -1,14 +1,12 @@
 import React from "react";
 import DropdownMenu from "./DropdownMenu.jsx";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import {useEffect, useRef, useState} from "react";
-import {auth, db} from "../firebase";
+import {db} from "../firebase";
 import "../styles/VideoCallPage.css";
 import JoinButton from "./buttons/JoinButton.jsx";
-import {store} from "../store";
 
 import {
     collection,
@@ -20,17 +18,16 @@ import {
 } from "firebase/firestore";
 import {useSelector} from "react-redux";
 import {styled} from "@mui/material";
-import {signOut} from "firebase/auth";
 
 const VideoContainer = styled(Box)(({theme}) => ({
     width: "100%",
     textAlign: "center",
 
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up("md")]: {
         height: "100%",
         maxHeight: "100%",
     },
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down("md")]: {
         height: "49vh",
         maxHeight: "49vh",
     },
@@ -53,17 +50,13 @@ const VideoItem = styled(Box)(({theme}) => ({
  */
 function VideoCallPage() {
     const webcamVideo = useRef(null);
-    const answerButton = useRef(null);
     const remoteVideo = useRef(null);
-    const hangupButton = useRef(null);
-    const [answerButtonIsEnabled, setAnswerButtonIsEnabled] = useState(false);
-    const [hangupButtonIsEnabled, setHangupButtonIsEnabled] = useState(false);
     const [joinedCall, setJoinedCall] = useState(false);
-
 
     const currentUser = useSelector((state) => state.login.user);
     let localStream = null;
     let remoteStream = null;
+    let candidatesQueue = [];
 
     // server config
     const servers = {
@@ -82,23 +75,19 @@ function VideoCallPage() {
     useEffect(() => {
         console.log("Peer Connection Created");
         startWebCam();
-
     }, []);
-
 
     /**
      * Stops the webcam
      */
     const stopWebCam = async () => {
         let localStream = webcamVideo.current.srcObject;
-        console.log(localStream)
+        console.log(localStream);
         if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
+            localStream.getTracks().forEach((track) => track.stop());
         }
         webcamVideo.current.srcObject = null;
-        setJoinedCall(false)
-
-    }
+    };
 
     /**
      * Handles the click event of the webcam button
@@ -131,16 +120,15 @@ function VideoCallPage() {
             });
             remoteVideo.current.srcObject = remoteStream;
         };
-
-        // enabling and disabling interface based on the current condition
-        setAnswerButtonIsEnabled(true);
     };
 
     /**
      * Handles the click event of the answer button
      * @returns {Promise<void>}
      */
-    const handleAnswerButtonClick = async () => {
+    const answerCall = async () => {
+        //TODO: If there is no incoming call, it will not be possible to answer the call
+
         const callId = currentUser.uid;
         // getting the data for this particular call
         const callDoc = doc(collection(db, "calls"), callId);
@@ -155,15 +143,15 @@ function VideoCallPage() {
         const callData = (await getDoc(callDoc)).data();
 
         //Extract the offer from the caller.
-        const offerDescription = callData.offer;
+        const offer = callData.offer;
         //Creat a RTCSessionDescription and set it as the remote description.
-        await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+        await pc.setRemoteDescription(offer);
 
         // Create the answer
         const answerDescription = await pc.createAnswer();
 
-        //Set the answeras the local description, and update the database.
-        await pc.setLocalDescription(new RTCSessionDescription(answerDescription));
+        //Set the answer as the local description, and update the database.
+        await pc.setLocalDescription(answerDescription);
         // answer config
         const answer = {
             type: answerDescription.type,
@@ -172,96 +160,118 @@ function VideoCallPage() {
 
         await updateDoc(callDoc, {answer});
 
+        //onSnapshot(offerCandidates, (snapshot) => {
+        //    snapshot.docChanges().forEach((change) => {
+        //        if (change.type === "added") {
+        //            let candidate = new RTCIceCandidate(change.doc.data());
+        //            pc.addIceCandidate(candidate);
+        //        }
+        //    });
+        //});
+
         onSnapshot(offerCandidates, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
-                    let candidate = new RTCIceCandidate(change.doc.data());
-                    pc.addIceCandidate(candidate);
+                    let data = change.doc.data();
+                    pc.addIceCandidate(new RTCIceCandidate(data));
+                    let candidate = new RTCIceCandidate();
+                    candidatesQueue.push(candidate);
                 }
             });
+
+            if (pc.remoteDescription) {
+                // Process all the candidates once the remote description is set
+                candidatesQueue.forEach((candidate) => {
+                    pc.addIceCandidate(candidate);
+                });
+                candidatesQueue = [];
+            }
         });
         setJoinedCall(true);
     };
 
+    /**
+     * Hang up the video call
+     */
+    const hangupCall = () => {
+        //TODO: complete this function
+        setJoinedCall(false);
+    };
+
     return (
-        <Box sx={{
-            height: "100%",
-            width: "100%",
-            maxHeight: "100%",
-            maxWidth: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        }}>
-
-
-            <Grid container rowSpacing={1} columnSpacing={1} sx={{
+        <Box
+            sx={{
                 height: "100%",
+                width: "100%",
                 maxHeight: "100%",
-                position: "absolute",
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0
-
-            }}>
+                maxWidth: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            <Grid
+                container
+                rowSpacing={1}
+                columnSpacing={1}
+                sx={{
+                    height: "100%",
+                    maxHeight: "100%",
+                    position: "absolute",
+                    top: 0,
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                }}
+            >
                 <Grid item xs={12} sm={12} md={6} lg={6} sx={{textAlign: "center"}}>
                     <VideoContainer>
-                        <VideoItem component={"video"}
-                                   sx={{
-                                       transform: "scale(-1, 1)",
-                                   }}
-                                   id="webcamVideo"
-                                   autoPlay
-                                   playsInline
-                                   ref={webcamVideo}
+                        <VideoItem
+                            component={"video"}
+                            sx={{
+                                transform: "scale(-1, 1)",
+                            }}
+                            id="webcamVideo"
+                            autoPlay
+                            playsInline
+                            ref={webcamVideo}
                         ></VideoItem>
                     </VideoContainer>
-
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6} sx={{textAlign: "center"}}>
                     <VideoContainer>
-                        <VideoItem component={"video"}
-                                   id="remoteVideo"
-                                   autoPlay
-                                   playsInline
-                                   ref={remoteVideo}
+                        <VideoItem
+                            component={"video"}
+                            id="remoteVideo"
+                            autoPlay
+                            playsInline
+                            ref={remoteVideo}
                         ></VideoItem>
                     </VideoContainer>
-
                 </Grid>
             </Grid>
 
-            <Stack spacing={3}
-                   sx={{position: "absolute", bottom: 0, right: 0, padding: "1rem"}}>
-
-                <Button
-                    id="answerButton"
-                    onClick={handleAnswerButtonClick}
-                    ref={answerButton}
-                    style={{
-                        backgroundColor: `#00DE00`,
-                    }} variant="contained">JOIN</Button>
-
+            <Stack
+                spacing={3}
+                sx={{position: "absolute", bottom: 0, right: 0, padding: "1rem"}}
+            >
+                {/*TODO: Add camera on or of button*/}
                 <JoinButton
                     id="hangupButton"
                     bgcolor={joinedCall ? "#FF0000" : "#00FF00"}
                     hovercolor={joinedCall ? "#930000" : "#009900"}
-                    onClick={joinedCall ? stopWebCam : handleAnswerButtonClick}
-                    ref={hangupButton}
+                    onClick={joinedCall ? hangupCall : answerCall}
                     variant="contained"
-                >{joinedCall ? "X" : "JOIN"}</JoinButton>
+                >
+                    {joinedCall ? "X" : "JOIN"}
+                </JoinButton>
             </Stack>
-
 
             <Box sx={{position: "fixed", top: 0, right: 0}}>
                 <DropdownMenu handlePreSignOut={stopWebCam}/>
             </Box>
         </Box>
-
-
     );
 }
-
 
 export default VideoCallPage;
