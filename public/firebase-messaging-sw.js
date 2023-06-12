@@ -18,6 +18,7 @@ const firebaseConfig = {
 };
 const app = firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
+
 messaging.onBackgroundMessage((payload) => {
     console.log(
         "[firebase-messaging-sw.js] Received background message ",
@@ -27,8 +28,9 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = "Smart";
     const notificationOptions = {
         body: "Incoming Video Call.",
-        icon: "/logo192.svg",
+        icon: "/logo192.svg"
     };
+
 
     self.registration.showNotification(notificationTitle, notificationOptions);
 });

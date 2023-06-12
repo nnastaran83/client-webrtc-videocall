@@ -19,7 +19,6 @@ import {
     updateDoc,
     addDoc,
 } from "firebase/firestore";
-import {send} from "vite";
 
 
 // server config
