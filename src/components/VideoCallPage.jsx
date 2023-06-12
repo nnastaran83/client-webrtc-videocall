@@ -19,6 +19,21 @@ import {
     updateDoc,
     addDoc,
 } from "firebase/firestore";
+import {send} from "vite";
+
+
+// server config
+const servers = {
+    iceServers: [
+        {
+            urls: [
+                "stun:stun1.l.google.com:19302",
+                "stun:stun2.l.google.com:19302",
+            ], // free stun server
+        },
+    ],
+    iceCandidatePoolSize: 10,
+};
 
 
 /**
@@ -30,25 +45,12 @@ function VideoCallPage() {
     const webcamVideo = useRef(null);
     const remoteVideo = useRef(null);
     const [joinedCall, setJoinedCall] = useState(false);
+    const pc = useRef(new RTCPeerConnection(servers));
+    const sendSignalChannel = useRef(null);
     const currentUser = useSelector((state) => state.login.user);
     let localStream = null;
     let remoteStream = null;
     let candidatesQueue = [];
-
-
-    // server config
-    const servers = {
-        iceServers: [
-            {
-                urls: [
-                    "stun:stun1.l.google.com:19302",
-                    "stun:stun2.l.google.com:19302",
-                ], // free stun server
-            },
-        ],
-        iceCandidatePoolSize: 10,
-    };
-    const [pc, setPc] = useState(new RTCPeerConnection(servers));
 
 
     useEffect(() => {
@@ -82,7 +84,7 @@ function VideoCallPage() {
 
         // Pushing tracks from local stream to peerConnection
         localStream.getTracks().forEach((track) => {
-            pc.addTrack(track, localStream);
+            pc.current.addTrack(track, localStream);
         });
 
         // displaying the video data from the stream to the webpage
@@ -93,21 +95,21 @@ function VideoCallPage() {
 
         remoteVideo.current.srcObject = remoteStream;
 
-        pc.ontrack = (event) => {
+        pc.current.ontrack = (event) => {
             event.streams[0].getTracks().forEach((track) => {
                 console.log("Adding track to remoteStream", track);
                 remoteStream.addTrack(track);
             });
             remoteVideo.current.srcObject = remoteStream;
         };
-        pc.oniceconnectionstatechange = (e) => {
-            console.log("ICE connection state change: ", pc.iceConnectionState);
-            if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+        pc.current.oniceconnectionstatechange = (e) => {
+            console.log("ICE connection state change: ", pc.current.iceConnectionState);
+            if (pc.current.iceConnectionState === "connected" || pc.current.iceConnectionState === "completed") {
                 // Connection has been established
                 // You can set your state variable here
 
                 setJoinedCall(true);
-            } else if (pc.iceConnectionState === "disconnected" || pc.iceConnectionState === "failed" || pc.iceConnectionState === "closed") {
+            } else if (pc.current.iceConnectionState === "disconnected" || pc.current.iceConnectionState === "failed" || pc.current.iceConnectionState === "closed") {
                 // Connection has been closed/failed
                 // You can reset your state variable here
                 setJoinedCall(false);
@@ -129,23 +131,31 @@ function VideoCallPage() {
         const answerCandidates = collection(callDoc, "answerCandidates");
         const offerCandidates = collection(callDoc, "offerCandidates");
 
+
         // here we listen to the changes and add it to the answerCandidates
-        pc.onicecandidate = (event) => {
+        pc.current.onicecandidate = (event) => {
             event.candidate && addDoc(answerCandidates, event.candidate.toJSON());
         };
 
+
+        pc.current.ondatachannel = (event) => {
+            sendSignalChannel.current = event.channel;
+            sendSignalChannel.current.onmessage = (event) => {
+                console.log("Received message:", event.data);
+            }
+        }
         const callData = (await getDoc(callDoc)).data();
 
         //Extract the offer from the caller.
         const offer = callData.offer;
         //Creat a RTCSessionDescription and set it as the remote description.
-        await pc.setRemoteDescription(offer);
+        await pc.current.setRemoteDescription(offer);
 
         // Create the answer
-        const answerDescription = await pc.createAnswer();
+        const answerDescription = await pc.current.createAnswer();
 
         //Set the answer as the local description, and update the database.
-        await pc.setLocalDescription(answerDescription);
+        await pc.current.setLocalDescription(answerDescription);
         // answer config
         const answer = {
             type: answerDescription.type,
@@ -167,15 +177,15 @@ function VideoCallPage() {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
                     let data = change.doc.data();
-                    pc.addIceCandidate(new RTCIceCandidate(data));
+                    pc.current.addIceCandidate(new RTCIceCandidate(data));
 
                 }
             });
 
-            if (pc.remoteDescription) {
+            if (pc.current.remoteDescription) {
                 // Process all the candidates once the remote description is set
                 candidatesQueue.forEach((candidate) => {
-                    pc.addIceCandidate(candidate);
+                    pc.current.addIceCandidate(candidate);
                 });
                 candidatesQueue = [];
             }
@@ -183,7 +193,10 @@ function VideoCallPage() {
         //  setJoinedCall(true);
     };
 
-
+    const sendMessage = (event) => {
+        const message = "APPROVE";
+        sendSignalChannel.current.send(message);
+    }
     /**
      * Hang up the video call
      */
@@ -250,7 +263,7 @@ function VideoCallPage() {
                 sx={{position: "absolute", bottom: 0, right: 0, padding: "1rem"}}
             >
 
-                <IconButton sx={{color: "#1fe600"}}>
+                <IconButton sx={{color: "#1fe600"}} onClick={sendMessage}>
                     <ThumbUpIcon fontSize="large"/>
                 </IconButton>
 
