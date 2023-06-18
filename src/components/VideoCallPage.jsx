@@ -155,6 +155,7 @@ function VideoCallPage() {
 
         //Set the answer as the local description, and update the database.
         await pc.current.setLocalDescription(answerDescription);
+
         // answer config
         const answer = {
             type: answerDescription.type,
@@ -163,14 +164,6 @@ function VideoCallPage() {
 
         await updateDoc(callDoc, {answer});
 
-        //onSnapshot(offerCandidates, (snapshot) => {
-        //    snapshot.docChanges().forEach((change) => {
-        //        if (change.type === "added") {
-        //            let candidate = new RTCIceCandidate(change.doc.data());
-        //            pc.addIceCandidate(candidate);
-        //        }
-        //    });
-        //});
 
         onSnapshot(offerCandidates, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
@@ -192,10 +185,19 @@ function VideoCallPage() {
         //  setJoinedCall(true);
     };
 
-    const sendMessage = (event) => {
-        const message = "APPROVE";
-        sendSignalChannel.current.send(message);
+    const sendSignalMessage = (event) => {
+        if (sendSignalChannel.current) {
+            const message = "APPROVE";
+            try {
+                sendSignalChannel.current.send(message);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
     }
+
+
     /**
      * Hang up the video call
      */
@@ -262,7 +264,7 @@ function VideoCallPage() {
                 sx={{position: "absolute", bottom: 0, right: 0, padding: "1rem"}}
             >
 
-                <IconButton sx={{color: "#1fe600"}} onClick={sendMessage}>
+                <IconButton sx={{color: "#1fe600"}} onClick={sendSignalMessage}>
                     <ThumbUpIcon fontSize="large"/>
                 </IconButton>
 
