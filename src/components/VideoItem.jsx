@@ -3,7 +3,6 @@ import {Box, styled} from "@mui/material";
 
 const VideoItem = styled(Box)(({theme}) => ({
     objectFit: "cover",
-    borderRadius: 5,
     width: "100%",
     height: "100vh",
     maxHeight: "100%",

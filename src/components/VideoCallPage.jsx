@@ -54,6 +54,14 @@ function VideoCallPage() {
 
     useEffect(() => {
         console.log("Peer Connection Created");
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                console.log("hidden")
+                stopWebCam();
+            } else {
+                console.log("shown")
+            }
+        });
         startWebCam();
     }, []);
 
@@ -220,8 +228,6 @@ function VideoCallPage() {
         >
             <Grid
                 container
-                rowSpacing={0.5}
-                columnSpacing={0.5}
                 sx={{
                     height: "100%",
                     maxHeight: "100%",

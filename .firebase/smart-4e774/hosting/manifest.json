@@ -1,0 +1,21 @@
+{
+  "index.css": {
+    "file": "assets/index-e59ca630.css",
+    "src": "index.css"
+  },
+  "index.html": {
+    "assets": [
+      "assets/circular_logo-d0c89e5c.svg"
+    ],
+    "css": [
+      "assets/index-e59ca630.css"
+    ],
+    "file": "assets/index-4b68c8ea.js",
+    "isEntry": true,
+    "src": "index.html"
+  },
+  "src/assets/circular_logo.svg": {
+    "file": "assets/circular_logo-d0c89e5c.svg",
+    "src": "src/assets/circular_logo.svg"
+  }
+}

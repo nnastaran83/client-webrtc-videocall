@@ -27,6 +27,10 @@ function App() {
     const url = new URL(currentUrl);
 
     useEffect(() => {
+        // Handle page visibility change:
+        // - If the page is hidden, pause the video
+        // - If the page is shown, play the video
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 dispatch(setEmail(user.email));
