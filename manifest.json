@@ -1,6 +1,11 @@
 {
   "short_name": "Smart Callee",
   "name": "Smart Callee",
+  "incudeAssets": [
+    "circular_logo.svg",
+    "logo192.svg",
+    "logo512.svg"
+  ],
   "icons": [
     {
       "src": "/logo192.svg",
