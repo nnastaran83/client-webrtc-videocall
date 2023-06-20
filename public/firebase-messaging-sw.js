@@ -19,7 +19,30 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
+self.addEventListener(
+    "notificationclick",
+    (event) => {
+        if (event.action === "accept") {
+            console.log("Accept was clicked");
+            event.waitUntil(
+                clients
+                    .matchAll({
+                        type: "window",
+                    })
+                    .then((clientList) => {
+                        for (const client of clientList) {
+                            if (client.url === "/" && "focus" in client) return client.focus();
+                        }
+                        if (clients.openWindow) return clients.openWindow("/");
+                    })
+            );
+        } else if (event.action === "decline") {
+            event.notification.close();
 
+        }
+    },
+    false
+);
 messaging.onBackgroundMessage((payload) => {
     console.log(
         "[firebase-messaging-sw.js] Received background message ",
@@ -29,7 +52,18 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = "Smart";
     const notificationOptions = {
         body: "Incoming Video Call.",
-        icon: "./logo192.svg"
+        icon: "./logo192.svg",
+        actions: [
+            {
+                action: "accept",
+                title: "Accept"
+
+            },
+            {
+                action: "decline",
+                title: "Decline"
+            }
+        ]
     };
 
 
