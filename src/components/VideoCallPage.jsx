@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import {useEffect, useRef, useState} from "react";
 import {useSelector} from "react-redux";
 import {Box, Grid, IconButton, Stack} from "@mui/material";
@@ -9,7 +9,7 @@ import VideoContainer from "./VideoContainer.jsx";
 import VideoItem from "./VideoItem.jsx";
 import DropdownMenu from "./DropdownMenu.jsx";
 import {db} from "../firebase";
-import "../styles/VideoCallPage.css";
+
 
 import {
     collection,
@@ -19,20 +19,7 @@ import {
     updateDoc,
     addDoc,
 } from "firebase/firestore";
-
-
-// server config
-const servers = {
-    iceServers: [
-        {
-            urls: [
-                "stun:stun1.l.google.com:19302",
-                "stun:stun2.l.google.com:19302",
-            ], // free stun server
-        },
-    ],
-    iceCandidatePoolSize: 10,
-};
+import {usePeerConnection} from "../hooks/usePeerConnection.js";
 
 
 /**
@@ -41,64 +28,91 @@ const servers = {
  * @constructor
  */
 function VideoCallPage() {
-    const webcamVideo = useRef(null);
+    const localStreamRef = useRef(null);
+    const [localStream, setLocalStream] = useState(null);
     const remoteVideo = useRef(null);
     const [joinedCall, setJoinedCall] = useState(false);
-    const pc = useRef(new RTCPeerConnection(servers));
+    const {pc} = usePeerConnection();
     const sendSignalChannel = useRef(null);
     const currentUser = useSelector((state) => state.login.user);
-    let localStream = null;
-    let remoteStream = null;
     let candidatesQueue = [];
 
 
     useEffect(() => {
-        console.log("Peer Connection Created");
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
-                console.log("hidden")
-                stopWebCam();
-            } else {
-                console.log("shown")
-            }
-        });
-        startWebCam();
+        init();
     }, []);
 
-    /**
-     * Stops the webcam
-     */
-    const stopWebCam = async () => {
-        let localStream = webcamVideo.current.srcObject;
-        console.log(localStream);
-        if (localStream) {
-            localStream.getTracks().forEach((track) => track.stop());
+
+    useEffect(() => {
+        // Handle page visibility change
+        const listener = () => {
+            if (document.hidden) {
+                console.log("hidden")
+                stopStreamedVideo(localStreamRef.current);
+            } else {
+                console.log("shown")
+                startLocalStream();
+            }
+        };
+        if (!joinedCall) {
+            document.addEventListener("visibilitychange", listener);
         }
-        webcamVideo.current.srcObject = null;
+
+
+        // cleanup
+        return () => document.removeEventListener("visibilitychange", listener);
+    }, [localStream, joinedCall]);
+
+    /**
+     * Initialize Video Call Page
+     * @returns {Promise<void>}
+     */
+    const init = async () => {
+        await startLocalStream();
+        await addRemoteStream();
+    }
+
+    /**
+     * Open the webcam
+     * @param constraints
+     * @returns {Promise<MediaStream>}
+     */
+    const openMediaDevices = async (constraints) => {
+        return await navigator.mediaDevices.getUserMedia(constraints);
     };
 
 
     /**
-     * Handles the click event of the webcam button
+     * Start the local video stream
      * @returns {Promise<void>}
      */
-    const startWebCam = async () => {
-        // setting local stream to the video from our camera
-        localStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true,
-        });
+    const startLocalStream = async () => {
+        // stop the previous stream before starting a new one
+        stopStreamedVideo(localStreamRef.current);
 
-        // Pushing tracks from local stream to peerConnection
-        localStream.getTracks().forEach((track) => {
-            pc.current.addTrack(track, localStream);
-        });
+        // start the new stream
+        try {
+            localStreamRef.current.srcObject = await openMediaDevices({
+                'video': true,
+                'audio': {echoCancellation: true} || true
+            });
+            console.log('Got MediaStream:', localStreamRef.current.srcObject);
+            // Pushing tracks from local stream to peerConnection
+            localStreamRef.current.srcObject.getTracks().forEach((track) => {
+                pc.current.addTrack(track, localStreamRef.current.srcObject);
+            });
 
-        // displaying the video data from the stream to the webpage
-        webcamVideo.current.srcObject = localStream;
 
+        } catch (error) {
+            console.error('Error accessing media devices.', error);
+        }
+
+        setLocalStream(localStreamRef.current.srcObject);
+    };
+
+    const addRemoteStream = async () => {
         // initializing the remote server to the media stream
-        remoteStream = new MediaStream();
+        const remoteStream = new MediaStream();
 
         remoteVideo.current.srcObject = remoteStream;
 
@@ -122,8 +136,27 @@ function VideoCallPage() {
                 setJoinedCall(false);
             }
         };
-    };
+    }
 
+    /**
+     * Stop video stream
+     * @param videoElem
+     */
+    const stopStreamedVideo = (videoElem) => {
+        if (videoElem.srcObject) {
+            console.log(videoElem.srcObject)
+            const stream = videoElem.srcObject;
+            const tracks = stream.getTracks();
+
+            tracks.forEach((track) => {
+                track.stop();
+            });
+
+            videoElem.srcObject = null;
+        }
+        setLocalStream(null);
+
+    };
 
     /**
      * Handles the click event of the answer button
@@ -193,17 +226,20 @@ function VideoCallPage() {
         //  setJoinedCall(true);
     };
 
-    const sendSignalMessage = (event) => {
+    /**
+     * send a approval or denial message to the caller
+     * @param msg
+     */
+    const sendSignalMessage = (msg) => {
         if (sendSignalChannel.current) {
-            const message = "APPROVE";
             try {
-                sendSignalChannel.current.send(message);
+                sendSignalChannel.current.send(msg);
             } catch (error) {
                 console.log(error);
             }
         }
 
-    }
+    };
 
 
     /**
@@ -212,6 +248,7 @@ function VideoCallPage() {
     const hangupCall = () => {
         //TODO: complete this function
         setJoinedCall(false);
+
     };
 
     return (
@@ -248,7 +285,7 @@ function VideoCallPage() {
                             id="webcamVideo"
                             autoPlay
                             playsInline
-                            ref={webcamVideo}
+                            ref={localStreamRef}
                         ></VideoItem>
                     </VideoContainer>
                 </Grid>
@@ -270,11 +307,11 @@ function VideoCallPage() {
                 sx={{position: "absolute", bottom: 0, right: 0, padding: "1rem"}}
             >
 
-                <IconButton sx={{color: "#1fe600"}} onClick={sendSignalMessage}>
+                <IconButton onClick={() => sendSignalMessage("Approve")} sx={{color: "#1fe600"}}>
                     <ThumbUpIcon fontSize="large"/>
                 </IconButton>
 
-                <IconButton sx={{color: "#FF0000"}}>
+                <IconButton onClick={() => sendSignalMessage("Deny")} sx={{color: "#FF0000"}}>
                     <ThumbDownIcon fontSize="large"/>
                 </IconButton>
 
@@ -289,11 +326,9 @@ function VideoCallPage() {
                 </JoinButton>
             </Stack>
 
-            <Box sx={{position: "fixed", top: 0, right: 0}}>
-                <DropdownMenu handlePreSignOut={stopWebCam}/>
-            </Box>
+            <DropdownMenu handlePreSignOut={() => stopStreamedVideo(localStreamRef.current)}/>
         </Box>
     );
-}
+};
 
 export default VideoCallPage;

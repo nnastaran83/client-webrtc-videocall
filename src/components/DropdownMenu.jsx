@@ -3,7 +3,7 @@ import StyledMenu from "./StyledMenu.jsx";
 import MenuItem from "@mui/material/MenuItem";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LogoutIcon from "@mui/icons-material/Logout";
-import {IconButton} from "@mui/material";
+import {Box, IconButton} from "@mui/material";
 import {signOut} from "firebase/auth";
 import {auth} from "../firebase/index.jsx";
 
@@ -26,13 +26,14 @@ function DropdownMenu({handlePreSignOut}) {
     };
 
     const handleSignOut = async (event) => {
-        setAnchorEl(null);
         await handlePreSignOut();
+        setAnchorEl(null);
         await signOut(auth);
     };
 
     return (
-        <Fragment>
+
+        <Box sx={{position: "fixed", top: 0, right: 0}}>
             <IconButton
                 id="demo-customized-button"
                 aria-controls={open ? "demo-customized-menu" : undefined}
@@ -58,7 +59,7 @@ function DropdownMenu({handlePreSignOut}) {
                     Log out
                 </MenuItem>
             </StyledMenu>
-        </Fragment>
+        </Box>
     );
 }
 
