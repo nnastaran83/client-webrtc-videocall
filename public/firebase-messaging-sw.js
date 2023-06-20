@@ -28,7 +28,7 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = "Smart";
     const notificationOptions = {
         body: "Incoming Video Call.",
-        icon: "/logo192.svg"
+        icon: "./logo192.svg"
     };
 
 

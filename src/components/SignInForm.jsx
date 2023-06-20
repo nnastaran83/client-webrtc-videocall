@@ -17,7 +17,6 @@ import BlueButton from "./buttons/BlueButton.jsx";
  */
 const SignInForm = ({
                         handleSignIn,
-                        fullNameError,
                         fullNameRef,
                         emailRef,
                         handleClickShowPassword,
@@ -35,7 +34,6 @@ const SignInForm = ({
                 {/*Name input*/}
                 <Grid item xs={12}>
                     <TextField
-                        error={fullNameError}
                         required
                         autoComplete={"name"}
                         label="Full name"

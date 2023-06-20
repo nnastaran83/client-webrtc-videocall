@@ -22,7 +22,7 @@ const Login = () => {
     const showPassword = useSelector((state) => state.login.showPassword);
     const {password} = useSelector((state) => state.login);
     const fullNameRef = useRef();
-    const [fullNameError, setFullNameError] = useState(false);
+
     const emailRef = useRef();
 
     const handlePasswordInputChange = (event) => {
@@ -52,7 +52,6 @@ const Login = () => {
             <HeaderLogo/>
             <SignInForm
                 handleSignIn={handleSignIn}
-                fullNameError={fullNameError}
                 fullNameRef={fullNameRef}
                 emailRef={emailRef}
                 handleClickShowPassword={handleClickShowPassword}
