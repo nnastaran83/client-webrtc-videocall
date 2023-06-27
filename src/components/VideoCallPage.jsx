@@ -9,8 +9,6 @@ import VideoContainer from "./VideoContainer.jsx";
 import VideoItem from "./VideoItem.jsx";
 import DropdownMenu from "./DropdownMenu.jsx";
 import {db} from "../firebase";
-
-
 import {
     collection,
     doc,
@@ -40,7 +38,7 @@ function VideoCallPage() {
 
     useEffect(() => {
         init();
-    }, []);
+    }, [pc]);
 
 
     useEffect(() => {
@@ -126,13 +124,8 @@ function VideoCallPage() {
         pc.current.oniceconnectionstatechange = (e) => {
             console.log("ICE connection state change: ", pc.current.iceConnectionState);
             if (pc.current.iceConnectionState === "connected" || pc.current.iceConnectionState === "completed") {
-                // Connection has been established
-                // You can set your state variable here
-
                 setJoinedCall(true);
             } else if (pc.current.iceConnectionState === "disconnected" || pc.current.iceConnectionState === "failed" || pc.current.iceConnectionState === "closed") {
-                // Connection has been closed/failed
-                // You can reset your state variable here
                 setJoinedCall(false);
             }
         };
@@ -307,11 +300,11 @@ function VideoCallPage() {
                 sx={{position: "absolute", bottom: 0, right: 0, padding: "1rem"}}
             >
 
-                <IconButton onClick={() => sendSignalMessage("Approve")} sx={{color: "#1fe600"}}>
+                <IconButton onClick={() => sendSignalMessage("Access approved!")} sx={{color: "#1fe600"}}>
                     <ThumbUpIcon fontSize="large"/>
                 </IconButton>
 
-                <IconButton onClick={() => sendSignalMessage("Deny")} sx={{color: "#FF0000"}}>
+                <IconButton onClick={() => sendSignalMessage("Access denied!")} sx={{color: "#FF0000"}}>
                     <ThumbDownIcon fontSize="large"/>
                 </IconButton>
 

@@ -28,12 +28,9 @@ function App() {
 
     useEffect(() => {
 
-        // Handle page visibility change:
-        // - If the page is hidden, pause the video
-        // - If the page is shown, play the video
-
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                console.log(user)
                 dispatch(setEmail(user.email));
                 userToJson(user).then((currentUser) => {
                     dispatch(setUser(currentUser));
