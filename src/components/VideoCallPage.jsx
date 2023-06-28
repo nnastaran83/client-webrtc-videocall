@@ -38,7 +38,7 @@ function VideoCallPage() {
 
     useEffect(() => {
         init();
-    }, [pc]);
+    }, []);
 
 
     useEffect(() => {
