@@ -7,7 +7,7 @@ export default defineConfig({
     plugins: [react()],
     build: {
         // generate manifest.json in outDir
-        manifest: true,
+        manifest: true
     },
     server: {
         watch: {
