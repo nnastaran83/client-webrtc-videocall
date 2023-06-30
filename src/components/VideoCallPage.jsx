@@ -33,12 +33,12 @@ function VideoCallPage() {
     const {pc} = usePeerConnection();
     const sendSignalChannel = useRef(null);
     const currentUser = useSelector((state) => state.login.user);
-    let candidatesQueue = [];
 
 
     useEffect(() => {
-        init();
-    }, []);
+        startLocalStream();
+
+    }, [pc]);
 
 
     useEffect(() => {
@@ -61,14 +61,6 @@ function VideoCallPage() {
         return () => document.removeEventListener("visibilitychange", listener);
     }, [localStream, joinedCall]);
 
-    /**
-     * Initialize Video Call Page
-     * @returns {Promise<void>}
-     */
-    const init = async () => {
-        await startLocalStream();
-        await addRemoteStream();
-    }
 
     /**
      * Open the webcam
@@ -157,10 +149,10 @@ function VideoCallPage() {
      */
     const answerCall = async () => {
         //TODO: If there is no incoming call, it will not be possible to answer the call
-
+        await addRemoteStream();
         const callId = currentUser.uid;
         // getting the data for this particular call
-        const callDoc = doc(collection(db, "calls"), callId);
+        const callDoc = doc(db, "calls", callId);
         const answerCandidates = collection(callDoc, "answerCandidates");
         const offerCandidates = collection(callDoc, "offerCandidates");
 
@@ -182,7 +174,7 @@ function VideoCallPage() {
         //Extract the offer from the caller.
         const offer = callData.offer;
         //Creat a RTCSessionDescription and set it as the remote description.
-        await pc.current.setRemoteDescription(offer);
+        await pc.current.setRemoteDescription(new RTCSessionDescription(offer));
 
         // Create the answer
         const answerDescription = await pc.current.createAnswer();
@@ -208,13 +200,6 @@ function VideoCallPage() {
                 }
             });
 
-            if (pc.current.remoteDescription) {
-                // Process all the candidates once the remote description is set
-                candidatesQueue.forEach((candidate) => {
-                    pc.current.addIceCandidate(candidate);
-                });
-                candidatesQueue = [];
-            }
         });
         //  setJoinedCall(true);
     };
