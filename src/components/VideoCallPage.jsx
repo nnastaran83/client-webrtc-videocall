@@ -30,7 +30,7 @@ function VideoCallPage() {
     const [localStream, setLocalStream] = useState(null);
     const remoteVideo = useRef(null);
     const [joinedCall, setJoinedCall] = useState(false);
-    const {pc} = usePeerConnection();
+    const [pc] = usePeerConnection();
     const sendSignalChannel = useRef(null);
     const currentUser = useSelector((state) => state.login.user);
 
@@ -84,7 +84,7 @@ function VideoCallPage() {
         try {
             localStreamRef.current.srcObject = await openMediaDevices({
                 'video': true,
-                'audio': {echoCancellation: true} || true
+                'audio': true
             });
             console.log('Got MediaStream:', localStreamRef.current.srcObject);
             // Pushing tracks from local stream to peerConnection
@@ -116,9 +116,10 @@ function VideoCallPage() {
         pc.current.oniceconnectionstatechange = (e) => {
             console.log("ICE connection state change: ", pc.current.iceConnectionState);
             if (pc.current.iceConnectionState === "connected" || pc.current.iceConnectionState === "completed") {
-                setJoinedCall(true);
+                console.log("connected to ice server");
+
             } else if (pc.current.iceConnectionState === "disconnected" || pc.current.iceConnectionState === "failed" || pc.current.iceConnectionState === "closed") {
-                setJoinedCall(false);
+                console.log("disconnected from ice server");
             }
         };
     }
@@ -174,7 +175,20 @@ function VideoCallPage() {
         //Extract the offer from the caller.
         const offer = callData.offer;
         //Creat a RTCSessionDescription and set it as the remote description.
-        await pc.current.setRemoteDescription(new RTCSessionDescription(offer));
+        await pc.current.setRemoteDescription(offer);
+
+        onSnapshot(offerCandidates, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    // let data = change.doc.data();
+                    //  pc.current.addIceCandidate(new RTCIceCandidate(data));
+                    const candidate = new RTCIceCandidate(change.doc.data());
+                    pc.current.addIceCandidate(candidate);
+
+                }
+            });
+
+        });
 
         // Create the answer
         const answerDescription = await pc.current.createAnswer();
@@ -189,19 +203,7 @@ function VideoCallPage() {
         };
 
         await updateDoc(callDoc, {answer});
-
-
-        onSnapshot(offerCandidates, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === "added") {
-                    let data = change.doc.data();
-                    pc.current.addIceCandidate(new RTCIceCandidate(data));
-
-                }
-            });
-
-        });
-        //  setJoinedCall(true);
+        setJoinedCall(true);
     };
 
     /**

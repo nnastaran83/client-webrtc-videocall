@@ -13,7 +13,8 @@ const usePeerConnection = () => {
         ],
         iceCandidatePoolSize: 10,
     };
-    return {pc: useRef(new RTCPeerConnection(servers))};
+    const pc = useRef(new RTCPeerConnection(servers));
+    return [pc];
 };
 
 export {usePeerConnection};
