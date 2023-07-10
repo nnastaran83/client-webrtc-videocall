@@ -41,27 +41,6 @@ function VideoCallPage() {
     }, [pc]);
 
 
-    //useEffect(() => {
-    //    // Handle page visibility change
-    //    const listener = () => {
-    //        if (!joinedCall && document.hidden) {
-    //            console.log("hidden")
-    //            stopStreamedVideo(localStreamRef.current);
-    //        } else {
-    //            console.log("shown")
-    //            startLocalStream();
-    //        }
-    //    };
-    //    if (!joinedCall) {
-    //        document.addEventListener("visibilitychange", listener);
-    //    }
-
-
-    //    // cleanup
-    //    return () => document.removeEventListener("visibilitychange", listener);
-    //}, [localStream, joinedCall]);
-
-
     /**
      * Open the webcam
      * @param constraints
