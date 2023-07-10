@@ -41,25 +41,25 @@ function VideoCallPage() {
     }, [pc]);
 
 
-    useEffect(() => {
-        // Handle page visibility change
-        const listener = () => {
-            if (document.hidden) {
-                console.log("hidden")
-                stopStreamedVideo(localStreamRef.current);
-            } else {
-                console.log("shown")
-                startLocalStream();
-            }
-        };
-        if (!joinedCall) {
-            document.addEventListener("visibilitychange", listener);
-        }
+    //useEffect(() => {
+    //    // Handle page visibility change
+    //    const listener = () => {
+    //        if (!joinedCall && document.hidden) {
+    //            console.log("hidden")
+    //            stopStreamedVideo(localStreamRef.current);
+    //        } else {
+    //            console.log("shown")
+    //            startLocalStream();
+    //        }
+    //    };
+    //    if (!joinedCall) {
+    //        document.addEventListener("visibilitychange", listener);
+    //    }
 
 
-        // cleanup
-        return () => document.removeEventListener("visibilitychange", listener);
-    }, [localStream, joinedCall]);
+    //    // cleanup
+    //    return () => document.removeEventListener("visibilitychange", listener);
+    //}, [localStream, joinedCall]);
 
 
     /**
@@ -149,6 +149,7 @@ function VideoCallPage() {
      * @returns {Promise<void>}
      */
     const answerCall = async () => {
+        setJoinedCall(true);
         //TODO: If there is no incoming call, it will not be possible to answer the call
         await addRemoteStream();
         const callId = currentUser.uid;
@@ -203,8 +204,9 @@ function VideoCallPage() {
         };
 
         await updateDoc(callDoc, {answer});
-        setJoinedCall(true);
+
     };
+
 
     /**
      * send a approval or denial message to the caller
